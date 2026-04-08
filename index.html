@@ -1,1 +1,430 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Caketella Kitchen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EFFAF0;
+  --card: #FFFFFF;
+  --card-border: #C8E6C9;
+  --text: #1B3A1B;
+  --text-dim: #4A7A4A;
+  --text-muted: #8AAF8A;
+  --snap1-bg: #E8F5E8;
+  --snap1-border: #81C784;
+  --snap1-accent: #2E7D32;
+  --snap1-header: #388E3C;
+  --snap2-bg: #FFF8E1;
+  --snap2-border: #FFCC80;
+  --snap2-accent: #E65100;
+  --snap2-header: #EF6C00;
+  --total-bg: #F3E8FF;
+  --total-border: #CE93D8;
+  --total-accent: #6A1B9A;
+  --total-header: #7B1FA2;
+  --radius: 14px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+}
+
+.header {
+  text-align: center;
+  padding: 12px 0 20px;
+}
+
+.header-logo {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--snap1-accent);
+  margin-bottom: 8px;
+}
+
+.header-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.header-subtitle {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #34A853;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.status-dot.error { background: #EA4335; animation: none; }
+
+.snapshot {
+  margin-bottom: 14px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1.5px solid;
+  background: var(--card);
+  box-shadow: 0 2px 6px rgba(0,60,0,0.06);
+}
+
+.snapshot.snap1 { border-color: var(--snap1-border); }
+.snapshot.snap2 { border-color: var(--snap2-border); }
+
+.snapshot-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.snap1 .snapshot-header { background: var(--snap1-header); }
+.snap2 .snapshot-header { background: var(--snap2-header); }
+
+.snapshot-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.22);
+}
+
+.snapshot-body { padding: 0; }
+
+.sku-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  font-size: 15px;
+  border-bottom: 1px solid;
+}
+
+.snap1 .sku-row {
+  background: var(--snap1-bg);
+  border-color: rgba(129, 199, 132, 0.4);
+}
+
+.snap2 .sku-row {
+  background: var(--snap2-bg);
+  border-color: rgba(255, 204, 128, 0.4);
+}
+
+.sku-row:last-child { border-bottom: none; }
+.sku-name { font-weight: 500; flex: 1; }
+
+.sku-qty {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 17px;
+  min-width: 40px;
+  text-align: right;
+}
+
+.snap1 .sku-qty { color: var(--snap1-accent); }
+.snap2 .sku-qty { color: var(--snap2-accent); }
+
+.total-card {
+  border: 1.5px solid var(--total-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 14px;
+  background: var(--card);
+  box-shadow: 0 2px 6px rgba(0,60,0,0.06);
+}
+
+.total-header {
+  background: var(--total-header);
+  padding: 13px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.total-body .sku-row {
+  background: var(--total-bg);
+  border-color: rgba(206, 147, 216, 0.35);
+}
+
+.total-body .sku-qty { color: var(--total-accent); }
+
+.empty-state {
+  padding: 20px 16px;
+  text-align: center;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.snap1 .empty-state { color: var(--snap1-accent); background: var(--snap1-bg); }
+.snap2 .empty-state { color: var(--snap2-accent); background: var(--snap2-bg); }
+
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-dim);
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--card-border);
+  border-top-color: var(--snap1-accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.refresh-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.refresh-btn:active {
+  transform: scale(0.98);
+  background: #DCEDC8;
+}
+
+.timestamp {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 12px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.error-msg {
+  background: #FFF0F0;
+  border: 1.5px solid #F0C0C0;
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+  color: #C03030;
+  font-size: 14px;
+}
+
+.no-orders-msg {
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 32px 20px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 14px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="header-logo">Caketella Kitchen</div>
+    <div class="header-date" id="prepDate">Loading...</div>
+    <div class="header-subtitle" id="prepSubtitle">Prep list</div>
+  </div>
+
+  <div class="status-bar" id="statusBar">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">Connecting...</span>
+  </div>
+
+  <div id="content">
+    <div class="loading">
+      <div class="loading-spinner"></div>
+      <div>Loading prep list...</div>
+    </div>
+  </div>
+
+  <button class="refresh-btn" id="refreshBtn" onclick="loadData()">Refresh</button>
+  <div class="timestamp" id="timestamp"></div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbwRy0feTpT4SDCblMZsrNNwNMH4YsODtOdlfjinuho2q59zFtpteyp64Ium2o5hrkPK/exec?mode=kitchen";
+
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+function getPrepDate() {
+  const now = new Date();
+  const d = new Date(now);
+  const cutoffHour = 8;
+  const cutoffMin = 30;
+  let label;
+
+  if (now.getHours() > cutoffHour || (now.getHours() === cutoffHour && now.getMinutes() >= cutoffMin)) {
+    d.setDate(d.getDate() + 1);
+    label = "Tomorrow's prep list";
+  } else {
+    label = "Today's prep list";
+  }
+
+  return {
+    tag: d.getDate() + " " + MONTHS[d.getMonth()] + " " + d.getFullYear(),
+    display: DAYS[d.getDay()] + ", " + d.getDate() + " " + MONTHS[d.getMonth()] + " " + d.getFullYear(),
+    subtitle: label
+  };
+}
+
+function setStatus(ok, text) {
+  document.getElementById("statusDot").className = "status-dot" + (ok ? "" : " error");
+  document.getElementById("statusText").textContent = text;
+}
+
+function renderContent(snap1Entries, snap2Entries) {
+  const content = document.getElementById("content");
+  let html = "";
+
+  const snap1Total = snap1Entries.reduce((s, e) => s + e[1], 0);
+  html += '<div class="snapshot snap1">';
+  html += '<div class="snapshot-header"><span>Confirmed by 4:30pm</span><span class="snapshot-badge">' + snap1Total + ' pcs</span></div>';
+  html += '<div class="snapshot-body">';
+  if (snap1Entries.length === 0) {
+    html += '<div class="empty-state">No orders confirmed yet</div>';
+  } else {
+    snap1Entries.forEach(([sku, qty]) => {
+      html += '<div class="sku-row"><span class="sku-name">' + sku + '</span><span class="sku-qty">' + qty + '</span></div>';
+    });
+  }
+  html += '</div></div>';
+
+  const snap2Total = snap2Entries.reduce((s, e) => s + e[1], 0);
+  html += '<div class="snapshot snap2">';
+  html += '<div class="snapshot-header"><span>Added overnight</span><span class="snapshot-badge">+' + snap2Total + ' pcs</span></div>';
+  html += '<div class="snapshot-body">';
+  if (snap2Entries.length === 0) {
+    html += '<div class="empty-state">No overnight additions yet</div>';
+  } else {
+    snap2Entries.forEach(([sku, qty]) => {
+      html += '<div class="sku-row"><span class="sku-name">' + sku + '</span><span class="sku-qty">+' + qty + '</span></div>';
+    });
+  }
+  html += '</div></div>';
+
+  const combinedMap = {};
+  snap1Entries.forEach(([sku, qty]) => { combinedMap[sku] = (combinedMap[sku] || 0) + qty; });
+  snap2Entries.forEach(([sku, qty]) => { combinedMap[sku] = (combinedMap[sku] || 0) + qty; });
+  const combinedEntries = Object.entries(combinedMap).sort((a, b) => a[0].localeCompare(b[0]));
+  const grandTotal = combinedEntries.reduce((s, e) => s + e[1], 0);
+
+  if (combinedEntries.length > 0) {
+    html += '<div class="total-card">';
+    html += '<div class="total-header"><span>Total to prep</span><span class="snapshot-badge">' + grandTotal + ' pcs</span></div>';
+    html += '<div class="total-body">';
+    combinedEntries.forEach(([sku, qty]) => {
+      html += '<div class="sku-row"><span class="sku-name">' + sku + '</span><span class="sku-qty">' + qty + '</span></div>';
+    });
+    html += '</div></div>';
+  }
+
+  content.innerHTML = html;
+}
+
+async function loadData() {
+  const btn = document.getElementById("refreshBtn");
+  btn.textContent = "Refreshing...";
+  btn.disabled = true;
+
+  const prep = getPrepDate();
+  document.getElementById("prepDate").textContent = prep.display;
+  document.getElementById("prepSubtitle").textContent = prep.subtitle;
+
+  try {
+    const response = await fetch(API_URL + "&date=" + encodeURIComponent(prep.tag));
+    if (!response.ok) throw new Error("Failed to fetch");
+    const data = await response.json();
+
+    if (data.error) {
+      setStatus(true, "No orders yet");
+      document.getElementById("content").innerHTML =
+        '<div class="no-orders-msg">' + data.error + '</div>';
+    } else {
+      const snap1 = Object.entries(data.snapshot1 || {}).sort((a, b) => a[0].localeCompare(b[0]));
+      const snap2 = Object.entries(data.snapshot2 || {}).sort((a, b) => a[0].localeCompare(b[0]));
+      const totalItems = snap1.reduce((s, e) => s + e[1], 0) + snap2.reduce((s, e) => s + e[1], 0);
+
+      renderContent(snap1, snap2);
+      setStatus(true, "Live \u00B7 " + totalItems + " total pcs");
+    }
+
+    const now = new Date();
+    document.getElementById("timestamp").textContent =
+      "Updated: " + now.toLocaleTimeString("en-MY", { hour: "2-digit", minute: "2-digit" });
+
+  } catch (err) {
+    setStatus(false, "Connection error");
+    document.getElementById("content").innerHTML =
+      '<div class="error-msg">Could not load data. Check your connection and try again.</div>';
+  }
+
+  btn.textContent = "Refresh";
+  btn.disabled = false;
+}
+
+loadData();
+setInterval(loadData, 5 * 60 * 1000);
+</script>
+</body>
+</html>
