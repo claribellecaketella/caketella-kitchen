@@ -48,6 +48,11 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 .sum-card.s2 .lbl { color: #EF6C00; }
 .sum-card.s3 .lbl { color: #7B1FA2; }
 
+.progress-bar { margin-bottom: 16px; background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 10px 16px; }
+.progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-dim); margin-bottom: 6px; font-weight: 600; }
+.progress-track { height: 8px; background: #E0E0E0; border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background: #388E3C; border-radius: 4px; transition: width 0.3s ease; }
+
 .panel { display: none; }
 .panel.active { display: block; }
 
@@ -63,11 +68,23 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 
 .section-badge { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 8px; background: rgba(255,255,255,0.22); }
 
-.sku-row { display: flex; justify-content: space-between; padding: 11px 16px; font-size: 15px; border-bottom: 1px solid; }
+.sku-row { display: flex; align-items: center; padding: 11px 16px; font-size: 15px; border-bottom: 1px solid; gap: 12px; cursor: pointer; transition: opacity 0.2s; }
 .sku-row:last-child { border-bottom: none; }
 .s1 .sku-row { background: #E8F5E8; border-color: rgba(129,199,132,0.4); }
 .s2 .sku-row { background: #FFF8E1; border-color: rgba(255,204,128,0.4); }
 .s3 .sku-row { background: #F3E8FF; border-color: rgba(206,147,216,0.35); }
+
+.sku-row.checked { opacity: 0.45; }
+.sku-row.checked .sku-name { text-decoration: line-through; }
+
+.sku-check { width: 22px; height: 22px; border-radius: 6px; border: 2px solid #aaa; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
+.s1 .sku-check { border-color: #81C784; }
+.s2 .sku-check { border-color: #FFCC80; }
+.s3 .sku-check { border-color: #CE93D8; }
+
+.sku-row.checked .sku-check { border-color: #388E3C; background: #388E3C; }
+.sku-row.checked .sku-check::after { content: ''; display: block; width: 6px; height: 10px; border: solid #fff; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); margin-top: -2px; }
+
 .sku-name { font-weight: 500; flex: 1; }
 .sku-qty { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 17px; min-width: 40px; text-align: right; }
 .s1 .sku-qty { color: #2E7D32; }
@@ -77,6 +94,12 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 .empty-state { padding: 20px 16px; text-align: center; font-size: 14px; font-style: italic; }
 .s1 .empty-state { color: #388E3C; background: #E8F5E8; }
 .s2 .empty-state { color: #EF6C00; background: #FFF8E1; }
+
+.select-all-btn { display: block; width: 100%; padding: 8px 16px; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; border: none; cursor: pointer; text-align: center; transition: all 0.15s; }
+.select-all-btn:active { opacity: 0.7; }
+.s1 .select-all-btn { background: #C8E6C9; color: #1B5E20; }
+.s2 .select-all-btn { background: #FFE0B2; color: #BF360C; }
+.s3 .select-all-btn { background: #E1BEE7; color: #4A148C; }
 
 .loading { text-align: center; padding: 60px 20px; color: var(--text-dim); }
 .loading-spinner { width: 32px; height: 32px; border: 3px solid var(--card-border); border-top-color: #2E7D32; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
@@ -104,6 +127,13 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     <span id="statusText">Connecting...</span>
   </div>
 
+  <div id="progressWrap" style="display:none;">
+    <div class="progress-bar">
+      <div class="progress-label"><span id="progLabel">0 / 0 done</span><span id="progPct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+    </div>
+  </div>
+
   <div id="content">
     <div class="loading">
       <div class="loading-spinner"></div>
@@ -119,6 +149,158 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 const API_URL = "https://script.google.com/macros/s/AKfycbwRy0feTpT4SDCblMZsrNNwNMH4YsODtOdlfjinuho2q59zFtpteyp64Ium2o5hrkPK/exec?mode=kitchen";
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+let checkedItems = {};
+let currentDateTag = "";
+let totalSkuCount = 0;
+
+function getStorageKey(dateTag) {
+  return "ck_" + dateTag.replace(/\s/g, "_");
+}
+
+function loadChecks(dateTag) {
+  try {
+    const key = getStorageKey(dateTag);
+    const stored = localStorage.getItem(key);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed.date === dateTag) return parsed.checked || {};
+    }
+  } catch(e) {}
+  return {};
+}
+
+function saveChecks(dateTag) {
+  try {
+    const key = getStorageKey(dateTag);
+    localStorage.setItem(key, JSON.stringify({ date: dateTag, checked: checkedItems }));
+  } catch(e) {}
+}
+
+function cleanOldChecks(currentTag) {
+  try {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith("ck_") && k !== getStorageKey(currentTag)) {
+        localStorage.removeItem(k);
+      }
+    }
+  } catch(e) {}
+}
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playTickSound() {
+  const now = audioCtx.currentTime;
+  const osc1 = audioCtx.createOscillator();
+  const osc2 = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc1.type = 'sine';
+  osc2.type = 'sine';
+  osc1.frequency.setValueAtTime(880, now);
+  osc1.frequency.setValueAtTime(1175, now + 0.06);
+  osc2.frequency.setValueAtTime(1175, now);
+  osc2.frequency.setValueAtTime(1480, now + 0.06);
+  gain.gain.setValueAtTime(0.15, now);
+  gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+  osc1.connect(gain);
+  osc2.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc1.start(now);
+  osc2.start(now);
+  osc1.stop(now + 0.15);
+  osc2.stop(now + 0.15);
+}
+
+function playUntickSound() {
+  const now = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const osc2 = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sawtooth';
+  osc2.type = 'sine';
+  osc.frequency.setValueAtTime(400, now);
+  osc.frequency.exponentialRampToValueAtTime(150, now + 0.35);
+  osc2.frequency.setValueAtTime(380, now);
+  osc2.frequency.exponentialRampToValueAtTime(140, now + 0.35);
+  gain.gain.setValueAtTime(0.08, now);
+  gain.gain.setValueAtTime(0.1, now + 0.05);
+  gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+  osc.connect(gain);
+  osc2.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(now);
+  osc2.start(now);
+  osc.stop(now + 0.4);
+  osc2.stop(now + 0.4);
+}
+
+function playJackpotSound() {
+  const now = audioCtx.currentTime;
+  const notes = [523, 659, 784, 1047, 1319, 1568];
+  notes.forEach((freq, i) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, now + i * 0.08);
+    gain.gain.setValueAtTime(0.15, now + i * 0.08);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.08 + 0.3);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now + i * 0.08);
+    osc.stop(now + i * 0.08 + 0.3);
+  });
+}
+
+function toggleCheck(panel, sku) {
+  const key = panel + "|" + sku;
+  if (checkedItems[key]) {
+    delete checkedItems[key];
+    playUntickSound();
+  } else {
+    checkedItems[key] = true;
+    playTickSound();
+  }
+  saveChecks(currentDateTag);
+  updateCheckUI();
+
+  const totalRows = document.querySelectorAll('#total .sku-row[data-key]');
+  let done = 0;
+  totalRows.forEach(r => { if (r.classList.contains('checked')) done++; });
+  if (totalRows.length > 0 && done === totalRows.length) {
+    setTimeout(playJackpotSound, 200);
+  }
+}
+
+function updateCheckUI() {
+  document.querySelectorAll('.sku-row[data-key]').forEach(row => {
+    const key = row.getAttribute('data-key');
+    if (checkedItems[key]) {
+      row.classList.add('checked');
+    } else {
+      row.classList.remove('checked');
+    }
+  });
+  updateProgress();
+}
+
+function updateProgress() {
+  const totalRows = document.querySelectorAll('#total .sku-row[data-key]');
+  if (totalRows.length === 0) {
+    document.getElementById('progressWrap').style.display = 'none';
+    return;
+  }
+  document.getElementById('progressWrap').style.display = 'block';
+  let done = 0;
+  totalRows.forEach(row => {
+    if (row.classList.contains('checked')) done++;
+  });
+  const total = totalRows.length;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progLabel').textContent = done + ' / ' + total + ' done';
+  document.getElementById('progPct').textContent = pct + '%';
+  document.getElementById('progFill').style.width = pct + '%';
+}
 
 function getPrepDate() {
   const now = new Date();
@@ -142,10 +324,7 @@ function setStatus(ok, text) {
   document.getElementById("statusText").textContent = text;
 }
 
-let currentPanel = "total";
-
 function showPanel(id) {
-  currentPanel = id;
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('.sum-card').forEach(c => c.classList.remove('selected'));
@@ -153,10 +332,47 @@ function showPanel(id) {
   document.querySelectorAll('.sum-card')[idx].classList.add('selected');
 }
 
+function selectAll(panel) {
+  const rows = document.querySelectorAll('#' + panel + ' .sku-row[data-key]');
+  let allChecked = true;
+  rows.forEach(r => { if (!r.classList.contains('checked')) allChecked = false; });
+
+  rows.forEach(r => {
+    const key = r.getAttribute('data-key');
+    if (allChecked) {
+      delete checkedItems[key];
+    } else {
+      checkedItems[key] = true;
+    }
+  });
+
+  if (!allChecked) playTickSound();
+  else playUntickSound();
+
+  saveChecks(currentDateTag);
+  updateCheckUI();
+
+  const totalRows = document.querySelectorAll('#total .sku-row[data-key]');
+  let done = 0;
+  totalRows.forEach(r => { if (r.classList.contains('checked')) done++; });
+  if (totalRows.length > 0 && done === totalRows.length) {
+    setTimeout(playJackpotSound, 200);
+  }
+}
+
+function skuRowHtml(panel, cls, sku, qty, prefix) {
+  const key = panel + "|" + sku;
+  const isChecked = checkedItems[key] ? ' checked' : '';
+  const val = prefix ? prefix + qty : qty;
+  return '<div class="sku-row' + isChecked + '" data-key="' + key + '" onclick="toggleCheck(\'' + panel + '\',\'' + sku.replace(/'/g, "\\'") + '\')">' +
+    '<div class="sku-check"></div>' +
+    '<span class="sku-name">' + sku + '</span>' +
+    '<span class="sku-qty">' + val + '</span></div>';
+}
+
 function renderContent(snap1Entries, snap2Entries) {
   const snap1Total = snap1Entries.reduce((s, e) => s + e[1], 0);
   const snap2Total = snap2Entries.reduce((s, e) => s + e[1], 0);
-
   const combinedMap = {};
   snap1Entries.forEach(([sku, qty]) => { combinedMap[sku] = (combinedMap[sku] || 0) + qty; });
   snap2Entries.forEach(([sku, qty]) => { combinedMap[sku] = (combinedMap[sku] || 0) + qty; });
@@ -164,7 +380,6 @@ function renderContent(snap1Entries, snap2Entries) {
   const grandTotal = combinedEntries.reduce((s, e) => s + e[1], 0);
 
   let html = '';
-
   html += '<div class="cards">';
   html += '<div class="sum-card s1" onclick="showPanel(\'snap1\')"><div class="num">' + snap1Total + '</div><div class="lbl">Confirmed</div></div>';
   html += '<div class="sum-card s2" onclick="showPanel(\'snap2\')"><div class="num">+' + snap2Total + '</div><div class="lbl">Overnight</div></div>';
@@ -176,9 +391,8 @@ function renderContent(snap1Entries, snap2Entries) {
   if (snap1Entries.length === 0) {
     html += '<div class="empty-state">No orders confirmed yet</div>';
   } else {
-    snap1Entries.forEach(([sku, qty]) => {
-      html += '<div class="sku-row"><span class="sku-name">' + sku + '</span><span class="sku-qty">' + qty + '</span></div>';
-    });
+    html += '<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'snap1\')">Select all / Unselect all</button>';
+    snap1Entries.forEach(([sku, qty]) => { html += skuRowHtml('snap1', 's1', sku, qty, ''); });
   }
   html += '</div></div>';
 
@@ -187,9 +401,8 @@ function renderContent(snap1Entries, snap2Entries) {
   if (snap2Entries.length === 0) {
     html += '<div class="empty-state">No overnight additions yet</div>';
   } else {
-    snap2Entries.forEach(([sku, qty]) => {
-      html += '<div class="sku-row"><span class="sku-name">' + sku + '</span><span class="sku-qty">+' + qty + '</span></div>';
-    });
+    html += '<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'snap2\')">Select all / Unselect all</button>';
+    snap2Entries.forEach(([sku, qty]) => { html += skuRowHtml('snap2', 's2', sku, qty, '+'); });
   }
   html += '</div></div>';
 
@@ -198,20 +411,23 @@ function renderContent(snap1Entries, snap2Entries) {
   if (combinedEntries.length === 0) {
     html += '<div class="empty-state">No orders yet</div>';
   } else {
-    combinedEntries.forEach(([sku, qty]) => {
-      html += '<div class="sku-row"><span class="sku-name">' + sku + '</span><span class="sku-qty">' + qty + '</span></div>';
-    });
+    html += '<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'total\')">Select all / Unselect all</button>';
+    combinedEntries.forEach(([sku, qty]) => { html += skuRowHtml('total', 's3', sku, qty, ''); });
   }
   html += '</div></div>';
 
   document.getElementById("content").innerHTML = html;
-  currentPanel = "total";
+  updateCheckUI();
 }
 
 async function loadData() {
   const prep = getPrepDate();
+  currentDateTag = prep.tag;
   document.getElementById("prepDate").textContent = prep.display;
   document.getElementById("prepSub").textContent = prep.subtitle;
+
+  checkedItems = loadChecks(currentDateTag);
+  cleanOldChecks(currentDateTag);
 
   try {
     const response = await fetch(API_URL + "&date=" + encodeURIComponent(prep.tag));
@@ -221,11 +437,11 @@ async function loadData() {
     if (data.error) {
       setStatus(true, "No orders yet");
       document.getElementById("content").innerHTML = '<div class="no-orders-msg">' + data.error + '</div>';
+      document.getElementById('progressWrap').style.display = 'none';
     } else {
       const snap1 = Object.entries(data.snapshot1 || {}).sort((a, b) => a[0].localeCompare(b[0]));
       const snap2 = Object.entries(data.snapshot2 || {}).sort((a, b) => a[0].localeCompare(b[0]));
       const totalItems = snap1.reduce((s, e) => s + e[1], 0) + snap2.reduce((s, e) => s + e[1], 0);
-
       renderContent(snap1, snap2);
       setStatus(true, "Live \u00B7 " + totalItems + " total pcs");
     }
