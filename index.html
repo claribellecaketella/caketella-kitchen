@@ -8,118 +8,108 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #EFFAF0;
-  --card: #FFFFFF;
-  --card-border: #C8E6C9;
-  --text: #1B3A1B;
-  --text-dim: #4A7A4A;
-  --text-muted: #8AAF8A;
-  --radius: 14px;
+  --bg: #EFFAF0; --card: #FFFFFF; --card-border: #C8E6C9;
+  --text: #1B3A1B; --text-dim: #4A7A4A; --text-muted: #8AAF8A; --radius: 14px;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
-.container { max-width: 480px; margin: 0 auto; padding: 20px 16px 40px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; -webkit-font-smoothing:antialiased; }
+.container { max-width:480px; margin:0 auto; padding:20px 16px 40px; }
+.header { text-align:center; padding:12px 0 12px; }
+.header-logo { font-size:13px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#2E7D32; margin-bottom:8px; }
+.header-sub { font-size:13px; color:var(--text-dim); margin-top:4px; }
 
-.header { text-align: center; padding: 12px 0 16px; }
-.header-logo { font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #2E7D32; margin-bottom: 8px; }
-.header-date { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; }
-.header-sub { font-size: 14px; color: var(--text-dim); margin-top: 4px; }
+.date-nav { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:16px; }
+.date-nav-btn { width:40px; height:40px; border-radius:50%; border:1.5px solid var(--card-border); background:var(--card); color:var(--text-dim); font-size:18px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; font-family:'DM Sans',sans-serif; }
+.date-nav-btn:active { transform:scale(0.92); background:#DCEDC8; }
+.date-display { font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:700; min-width:200px; text-align:center; }
+.date-today-btn { font-size:11px; color:#2E7D32; font-weight:600; cursor:pointer; text-decoration:underline; margin-top:2px; display:block; text-align:center; }
 
-.status-bar { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); margin-bottom: 16px; font-size: 12px; color: var(--text-dim); }
-.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #34A853; animation: pulse 2s ease-in-out infinite; }
-@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
-.status-dot.error { background: #EA4335; animation: none; }
+.status-bar { display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 16px; background:var(--card); border:1px solid var(--card-border); border-radius:var(--radius); margin-bottom:16px; font-size:12px; color:var(--text-dim); }
+.status-dot { width:8px; height:8px; border-radius:50%; background:#34A853; animation:pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+.status-dot.error { background:#EA4335; animation:none; }
 
-.cards { display: flex; gap: 8px; margin-bottom: 16px; }
-.sum-card { flex: 1; padding: 14px 8px; border-radius: var(--radius); text-align: center; cursor: pointer; border: 2.5px solid transparent; transition: all 0.2s; }
-.sum-card.s1 { background: #E8F5E8; }
-.sum-card.s2 { background: #FFF8E1; }
-.sum-card.s3 { background: #F3E8FF; }
-.sum-card.selected.s1 { border-color: #388E3C; }
-.sum-card.selected.s2 { border-color: #EF6C00; }
-.sum-card.selected.s3 { border-color: #7B1FA2; }
-.sum-card:active { transform: scale(0.97); }
-.sum-card .num { font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 700; }
-.sum-card.s1 .num { color: #2E7D32; }
-.sum-card.s2 .num { color: #E65100; }
-.sum-card.s3 .num { color: #6A1B9A; }
-.sum-card .lbl { font-size: 11px; font-weight: 600; margin-top: 2px; }
-.sum-card.s1 .lbl { color: #388E3C; }
-.sum-card.s2 .lbl { color: #EF6C00; }
-.sum-card.s3 .lbl { color: #7B1FA2; }
+.cards { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
+.sum-card { flex:1; min-width:70px; padding:12px 6px; border-radius:var(--radius); text-align:center; cursor:pointer; border:2.5px solid transparent; transition:all 0.2s; }
+.sum-card.s1 { background:#E8F5E8; } .sum-card.s2 { background:#FFF8E1; }
+.sum-card.s3 { background:#E3F2FD; } .sum-card.st { background:#F3E8FF; }
+.sum-card.selected.s1 { border-color:#388E3C; } .sum-card.selected.s2 { border-color:#EF6C00; }
+.sum-card.selected.s3 { border-color:#1565C0; } .sum-card.selected.st { border-color:#7B1FA2; }
+.sum-card:active { transform:scale(0.97); }
+.sum-card .num { font-family:'JetBrains Mono',monospace; font-size:24px; font-weight:700; }
+.sum-card.s1 .num { color:#2E7D32; } .sum-card.s2 .num { color:#E65100; }
+.sum-card.s3 .num { color:#1565C0; } .sum-card.st .num { color:#6A1B9A; }
+.sum-card .lbl { font-size:10px; font-weight:600; margin-top:2px; }
+.sum-card.s1 .lbl { color:#388E3C; } .sum-card.s2 .lbl { color:#EF6C00; }
+.sum-card.s3 .lbl { color:#1565C0; } .sum-card.st .lbl { color:#7B1FA2; }
 
-.progress-bar { margin-bottom: 16px; background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 10px 16px; }
-.progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-dim); margin-bottom: 6px; font-weight: 600; }
-.progress-track { height: 8px; background: #E0E0E0; border-radius: 4px; overflow: hidden; }
-.progress-fill { height: 100%; background: #388E3C; border-radius: 4px; transition: width 0.3s ease; }
+.progress-bar { margin:0; border:none; border-radius:0; padding:8px 16px; }
+.progress-label { display:flex; justify-content:space-between; font-size:11px; color:var(--text-dim); margin-bottom:4px; font-weight:600; }
+.progress-track { height:6px; background:#E0E0E0; border-radius:3px; overflow:hidden; }
+.progress-fill { height:100%; border-radius:3px; transition:width 0.3s ease; }
 
-.panel { display: none; }
-.panel.active { display: block; }
+.panel { display:none; } .panel.active { display:block; }
+.section { border-radius:var(--radius); overflow:hidden; border:1.5px solid; background:var(--card); box-shadow:0 2px 6px rgba(0,60,0,0.06); }
+.section.s1 { border-color:#81C784; } .section.s2 { border-color:#FFCC80; }
+.section.s3 { border-color:#90CAF9; } .section.st { border-color:#CE93D8; }
+.section-head { padding:13px 16px; font-size:14px; font-weight:600; color:#fff; display:flex; justify-content:space-between; align-items:center; }
+.s1 .section-head { background:#388E3C; } .s2 .section-head { background:#EF6C00; }
+.s3 .section-head { background:#1565C0; } .st .section-head { background:#7B1FA2; }
+.section-badge { font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; padding:3px 10px; border-radius:8px; background:rgba(255,255,255,0.22); }
 
-.section { border-radius: var(--radius); overflow: hidden; border: 1.5px solid; background: var(--card); box-shadow: 0 2px 6px rgba(0,60,0,0.06); }
-.section.s1 { border-color: #81C784; }
-.section.s2 { border-color: #FFCC80; }
-.section.s3 { border-color: #CE93D8; }
+.sku-row { display:flex; align-items:center; padding:11px 16px; font-size:15px; border-bottom:1px solid; gap:12px; cursor:pointer; transition:opacity 0.2s; }
+.sku-row:last-child { border-bottom:none; }
+.s1 .sku-row { background:#E8F5E8; border-color:rgba(129,199,132,0.4); }
+.s2 .sku-row { background:#FFF8E1; border-color:rgba(255,204,128,0.4); }
+.s3 .sku-row { background:#E3F2FD; border-color:rgba(144,202,249,0.4); }
+.st .sku-row { background:#F3E8FF; border-color:rgba(206,147,216,0.35); }
+.sku-row.checked { opacity:0.45; } .sku-row.checked .sku-name { text-decoration:line-through; }
+.sku-check { width:22px; height:22px; border-radius:6px; border:2px solid #aaa; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.15s; }
+.s1 .sku-check { border-color:#81C784; } .s2 .sku-check { border-color:#FFCC80; }
+.s3 .sku-check { border-color:#90CAF9; } .st .sku-check { border-color:#CE93D8; }
+.sku-row.checked .sku-check { border-color:#388E3C; background:#388E3C; }
+.sku-row.checked .sku-check::after { content:''; display:block; width:6px; height:10px; border:solid #fff; border-width:0 2.5px 2.5px 0; transform:rotate(45deg); margin-top:-2px; }
+.sku-name { font-weight:500; flex:1; } 
+.sku-qty { font-family:'JetBrains Mono',monospace; font-weight:700; font-size:17px; min-width:40px; text-align:right; }
+.s1 .sku-qty { color:#2E7D32; } .s2 .sku-qty { color:#E65100; }
+.s3 .sku-qty { color:#1565C0; } .st .sku-qty { color:#6A1B9A; }
 
-.section-head { padding: 13px 16px; font-size: 14px; font-weight: 600; color: #fff; display: flex; justify-content: space-between; align-items: center; }
-.s1 .section-head { background: #388E3C; }
-.s2 .section-head { background: #EF6C00; }
-.s3 .section-head { background: #7B1FA2; }
+.select-all-btn { display:block; width:100%; padding:8px 16px; font-size:12px; font-weight:600; font-family:'DM Sans',sans-serif; border:none; cursor:pointer; text-align:center; transition:all 0.15s; }
+.select-all-btn:active { opacity:0.7; }
+.s1 .select-all-btn { background:#C8E6C9; color:#1B5E20; }
+.s2 .select-all-btn { background:#FFE0B2; color:#BF360C; }
+.s3 .select-all-btn { background:#BBDEFB; color:#0D47A1; }
+.st .select-all-btn { background:#E1BEE7; color:#4A148C; }
 
-.section-badge { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 8px; background: rgba(255,255,255,0.22); }
+.empty-state { padding:20px 16px; text-align:center; font-size:14px; font-style:italic; }
+.s1 .empty-state { color:#388E3C; background:#E8F5E8; }
+.s2 .empty-state { color:#EF6C00; background:#FFF8E1; }
+.s3 .empty-state { color:#1565C0; background:#E3F2FD; }
 
-.sku-row { display: flex; align-items: center; padding: 11px 16px; font-size: 15px; border-bottom: 1px solid; gap: 12px; cursor: pointer; transition: opacity 0.2s; }
-.sku-row:last-child { border-bottom: none; }
-.s1 .sku-row { background: #E8F5E8; border-color: rgba(129,199,132,0.4); }
-.s2 .sku-row { background: #FFF8E1; border-color: rgba(255,204,128,0.4); }
-.s3 .sku-row { background: #F3E8FF; border-color: rgba(206,147,216,0.35); }
-
-.sku-row.checked { opacity: 0.45; }
-.sku-row.checked .sku-name { text-decoration: line-through; }
-
-.sku-check { width: 22px; height: 22px; border-radius: 6px; border: 2px solid #aaa; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
-.s1 .sku-check { border-color: #81C784; }
-.s2 .sku-check { border-color: #FFCC80; }
-.s3 .sku-check { border-color: #CE93D8; }
-
-.sku-row.checked .sku-check { border-color: #388E3C; background: #388E3C; }
-.sku-row.checked .sku-check::after { content: ''; display: block; width: 6px; height: 10px; border: solid #fff; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); margin-top: -2px; }
-
-.sku-name { font-weight: 500; flex: 1; }
-.sku-qty { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 17px; min-width: 40px; text-align: right; }
-.s1 .sku-qty { color: #2E7D32; }
-.s2 .sku-qty { color: #E65100; }
-.s3 .sku-qty { color: #6A1B9A; }
-
-.empty-state { padding: 20px 16px; text-align: center; font-size: 14px; font-style: italic; }
-.s1 .empty-state { color: #388E3C; background: #E8F5E8; }
-.s2 .empty-state { color: #EF6C00; background: #FFF8E1; }
-
-.select-all-btn { display: block; width: 100%; padding: 8px 16px; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; border: none; cursor: pointer; text-align: center; transition: all 0.15s; }
-.select-all-btn:active { opacity: 0.7; }
-.s1 .select-all-btn { background: #C8E6C9; color: #1B5E20; }
-.s2 .select-all-btn { background: #FFE0B2; color: #BF360C; }
-.s3 .select-all-btn { background: #E1BEE7; color: #4A148C; }
-
-.loading { text-align: center; padding: 60px 20px; color: var(--text-dim); }
-.loading-spinner { width: 32px; height: 32px; border: 3px solid var(--card-border); border-top-color: #2E7D32; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.refresh-btn { display: block; width: 100%; padding: 14px; margin-top: 16px; background: var(--card); border: 1.5px solid var(--card-border); border-radius: var(--radius); color: var(--text-dim); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; text-align: center; }
-.refresh-btn:active { transform: scale(0.98); background: #DCEDC8; }
-
-.timestamp { text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 12px; font-family: 'JetBrains Mono', monospace; }
-
-.error-msg { background: #FFF0F0; border: 1.5px solid #F0C0C0; border-radius: var(--radius); padding: 20px; text-align: center; color: #C03030; font-size: 14px; }
-.no-orders-msg { background: var(--card); border: 1.5px solid var(--card-border); border-radius: var(--radius); padding: 32px 20px; text-align: center; color: var(--text-dim); font-size: 14px; }
+.loading { text-align:center; padding:60px 20px; color:var(--text-dim); }
+.loading-spinner { width:32px; height:32px; border:3px solid var(--card-border); border-top-color:#2E7D32; border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 16px; }
+@keyframes spin { to{transform:rotate(360deg);} }
+.refresh-btn { display:block; width:100%; padding:14px; margin-top:16px; background:var(--card); border:1.5px solid var(--card-border); border-radius:var(--radius); color:var(--text-dim); font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600; cursor:pointer; transition:all 0.15s; text-align:center; }
+.refresh-btn:active { transform:scale(0.98); background:#DCEDC8; }
+.timestamp { text-align:center; font-size:11px; color:var(--text-muted); margin-top:12px; font-family:'JetBrains Mono',monospace; }
+.error-msg { background:#FFF0F0; border:1.5px solid #F0C0C0; border-radius:var(--radius); padding:20px; text-align:center; color:#C03030; font-size:14px; }
+.no-orders-msg { background:var(--card); border:1.5px solid var(--card-border); border-radius:var(--radius); padding:32px 20px; text-align:center; color:var(--text-dim); font-size:14px; }
 </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
     <div class="header-logo">Caketella Kitchen</div>
-    <div class="header-date" id="prepDate">Loading...</div>
     <div class="header-sub" id="prepSub">Prep list</div>
+  </div>
+
+  <div class="date-nav">
+    <button class="date-nav-btn" onclick="changeDate(-1)">&lt;</button>
+    <div>
+      <div class="date-display" id="prepDate">Loading...</div>
+      <span class="date-today-btn" id="todayBtn" onclick="goToDefault()" style="display:none;">Back to default</span>
+    </div>
+    <button class="date-nav-btn" onclick="changeDate(1)">&gt;</button>
   </div>
 
   <div class="status-bar">
@@ -128,10 +118,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
   </div>
 
   <div id="content">
-    <div class="loading">
-      <div class="loading-spinner"></div>
-      <div>Loading prep list...</div>
-    </div>
+    <div class="loading"><div class="loading-spinner"></div><div>Loading prep list...</div></div>
   </div>
 
   <button class="refresh-btn" onclick="loadData()">Refresh</button>
@@ -145,333 +132,259 @@ const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
 let checkedItems = {};
 let currentDateTag = "";
-let totalSkuCount = 0;
-
-function getStorageKey(dateTag) {
-  return "ck_" + dateTag.replace(/\s/g, "_");
-}
-
-function loadChecks(dateTag) {
-  try {
-    const key = getStorageKey(dateTag);
-    const stored = localStorage.getItem(key);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (parsed.date === dateTag) return parsed.checked || {};
-    }
-  } catch(e) {}
-  return {};
-}
-
-function saveChecks(dateTag) {
-  try {
-    const key = getStorageKey(dateTag);
-    localStorage.setItem(key, JSON.stringify({ date: dateTag, checked: checkedItems }));
-  } catch(e) {}
-}
-
-function cleanOldChecks(currentTag) {
-  try {
-    for (let i = localStorage.length - 1; i >= 0; i--) {
-      const k = localStorage.key(i);
-      if (k && k.startsWith("ck_") && k !== getStorageKey(currentTag)) {
-        localStorage.removeItem(k);
-      }
-    }
-  } catch(e) {}
-}
+let dateOffset = 0;
+let defaultOffset = 0;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function playTickSound() {
   const now = audioCtx.currentTime;
-  const osc1 = audioCtx.createOscillator();
-  const osc2 = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc1.type = 'sine';
-  osc2.type = 'sine';
-  osc1.frequency.setValueAtTime(880, now);
-  osc1.frequency.setValueAtTime(1175, now + 0.06);
-  osc2.frequency.setValueAtTime(1175, now);
-  osc2.frequency.setValueAtTime(1480, now + 0.06);
-  gain.gain.setValueAtTime(0.15, now);
-  gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-  osc1.connect(gain);
-  osc2.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc1.start(now);
-  osc2.start(now);
-  osc1.stop(now + 0.15);
-  osc2.stop(now + 0.15);
+  const o1 = audioCtx.createOscillator(), o2 = audioCtx.createOscillator(), g = audioCtx.createGain();
+  o1.type='sine'; o2.type='sine';
+  o1.frequency.setValueAtTime(880,now); o1.frequency.setValueAtTime(1175,now+0.06);
+  o2.frequency.setValueAtTime(1175,now); o2.frequency.setValueAtTime(1480,now+0.06);
+  g.gain.setValueAtTime(0.15,now); g.gain.exponentialRampToValueAtTime(0.01,now+0.15);
+  o1.connect(g); o2.connect(g); g.connect(audioCtx.destination);
+  o1.start(now); o2.start(now); o1.stop(now+0.15); o2.stop(now+0.15);
 }
 
 function playUntickSound() {
   const now = audioCtx.currentTime;
-  const osc = audioCtx.createOscillator();
-  const osc2 = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.type = 'sawtooth';
-  osc2.type = 'sine';
-  osc.frequency.setValueAtTime(400, now);
-  osc.frequency.exponentialRampToValueAtTime(150, now + 0.35);
-  osc2.frequency.setValueAtTime(380, now);
-  osc2.frequency.exponentialRampToValueAtTime(140, now + 0.35);
-  gain.gain.setValueAtTime(0.08, now);
-  gain.gain.setValueAtTime(0.1, now + 0.05);
-  gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-  osc.connect(gain);
-  osc2.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.start(now);
-  osc2.start(now);
-  osc.stop(now + 0.4);
-  osc2.stop(now + 0.4);
+  const o1 = audioCtx.createOscillator(), o2 = audioCtx.createOscillator(), g = audioCtx.createGain();
+  o1.type='sawtooth'; o2.type='sine';
+  o1.frequency.setValueAtTime(400,now); o1.frequency.exponentialRampToValueAtTime(150,now+0.35);
+  o2.frequency.setValueAtTime(380,now); o2.frequency.exponentialRampToValueAtTime(140,now+0.35);
+  g.gain.setValueAtTime(0.08,now); g.gain.setValueAtTime(0.1,now+0.05); g.gain.exponentialRampToValueAtTime(0.01,now+0.4);
+  o1.connect(g); o2.connect(g); g.connect(audioCtx.destination);
+  o1.start(now); o2.start(now); o1.stop(now+0.4); o2.stop(now+0.4);
 }
 
 function playJackpotSound() {
   const now = audioCtx.currentTime;
-  const notes = [523, 659, 784, 1047, 1319, 1568];
-  notes.forEach((freq, i) => {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq, now + i * 0.08);
-    gain.gain.setValueAtTime(0.15, now + i * 0.08);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.08 + 0.3);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start(now + i * 0.08);
-    osc.stop(now + i * 0.08 + 0.3);
+  [523,659,784,1047,1319,1568].forEach((freq,i) => {
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type='sine'; o.frequency.setValueAtTime(freq,now+i*0.08);
+    g.gain.setValueAtTime(0.15,now+i*0.08); g.gain.exponentialRampToValueAtTime(0.01,now+i*0.08+0.3);
+    o.connect(g); g.connect(audioCtx.destination); o.start(now+i*0.08); o.stop(now+i*0.08+0.3);
   });
+}
+
+function getStorageKey(dateTag) { return "ck_" + dateTag.replace(/\s/g,"_"); }
+function loadChecks(dateTag) {
+  try { const s = localStorage.getItem(getStorageKey(dateTag)); if(s){const p=JSON.parse(s); if(p.date===dateTag) return p.checked||{};} } catch(e){}
+  return {};
+}
+function saveChecks(dateTag) {
+  try { localStorage.setItem(getStorageKey(dateTag), JSON.stringify({date:dateTag,checked:checkedItems})); } catch(e){}
+}
+
+function getDateFromOffset(offset) {
+  const now = new Date();
+  const d = new Date(now);
+  d.setDate(d.getDate() + offset);
+  return {
+    tag: d.getDate() + " " + MONTHS[d.getMonth()] + " " + d.getFullYear(),
+    display: DAYS[d.getDay()] + ", " + d.getDate() + " " + MONTHS[d.getMonth()] + " " + d.getFullYear()
+  };
+}
+
+function getDefaultOffset() {
+  const now = new Date();
+  if (now.getHours() > 8 || (now.getHours() === 8 && now.getMinutes() >= 30)) return 1;
+  return 0;
+}
+
+function changeDate(dir) {
+  dateOffset += dir;
+  loadData();
+  const btn = document.getElementById("todayBtn");
+  btn.style.display = (dateOffset === defaultOffset) ? "none" : "block";
+}
+
+function goToDefault() {
+  dateOffset = defaultOffset;
+  loadData();
+  document.getElementById("todayBtn").style.display = "none";
 }
 
 function toggleCheck(panel, sku) {
   const key = panel + "|" + sku;
-  if (checkedItems[key]) {
-    delete checkedItems[key];
-    playUntickSound();
-  } else {
-    checkedItems[key] = true;
-    playTickSound();
-  }
+  if (checkedItems[key]) { delete checkedItems[key]; playUntickSound(); }
+  else { checkedItems[key] = true; playTickSound(); }
   saveChecks(currentDateTag);
   updateCheckUI();
+  const rows = document.querySelectorAll('#total .sku-row[data-key]');
+  let allDone = true;
+  rows.forEach(r => { if(!r.classList.contains('checked')) allDone=false; });
+  if (rows.length > 0 && allDone) setTimeout(playJackpotSound, 200);
+}
 
-  const totalRows = document.querySelectorAll('#total .sku-row[data-key]');
+function selectAll(panel) {
+  const rows = document.querySelectorAll('#'+panel+' .sku-row[data-key]');
   let allChecked = true;
-  totalRows.forEach(r => { if (!r.classList.contains('checked')) allChecked = false; });
-  if (totalRows.length > 0 && allChecked) {
-    setTimeout(playJackpotSound, 200);
-  }
+  rows.forEach(r => { if(!r.classList.contains('checked')) allChecked=false; });
+  rows.forEach(r => {
+    const key = r.getAttribute('data-key');
+    if(allChecked) delete checkedItems[key]; else checkedItems[key]=true;
+  });
+  if(!allChecked) playTickSound(); else playUntickSound();
+  saveChecks(currentDateTag);
+  updateCheckUI();
+  const totalRows = document.querySelectorAll('#total .sku-row[data-key]');
+  let allDone = true;
+  totalRows.forEach(r => { if(!r.classList.contains('checked')) allDone=false; });
+  if (totalRows.length > 0 && allDone) setTimeout(playJackpotSound, 200);
 }
 
 function updateCheckUI() {
   document.querySelectorAll('.sku-row[data-key]').forEach(row => {
-    const key = row.getAttribute('data-key');
-    if (checkedItems[key]) {
-      row.classList.add('checked');
-    } else {
-      row.classList.remove('checked');
-    }
+    if(checkedItems[row.getAttribute('data-key')]) row.classList.add('checked');
+    else row.classList.remove('checked');
   });
   updateProgress();
 }
 
 function updateProgress() {
-  ['snap1', 'snap2'].forEach(panel => {
-    const rows = document.querySelectorAll('#' + panel + ' .sku-row[data-key]');
-    const bar = document.getElementById('prog-' + panel);
-    if (!bar || rows.length === 0) { if (bar) bar.style.display = 'none'; return; }
-    bar.style.display = 'block';
-    let doneQty = 0;
-    let totalQty = 0;
-    rows.forEach(r => {
-      const qty = parseInt(r.getAttribute('data-qty')) || 0;
-      totalQty += qty;
-      if (r.classList.contains('checked')) doneQty += qty;
-    });
-    const pct = totalQty > 0 ? Math.round((doneQty / totalQty) * 100) : 0;
-    bar.querySelector('.prog-lbl').textContent = doneQty + ' / ' + totalQty + ' pcs done';
-    bar.querySelector('.prog-pct').textContent = pct + '%';
-    bar.querySelector('.progress-fill').style.width = pct + '%';
+  ['snap1','snap2','snap3'].forEach(panel => {
+    const rows = document.querySelectorAll('#'+panel+' .sku-row[data-key]');
+    const bar = document.getElementById('prog-'+panel);
+    if(!bar||rows.length===0){if(bar)bar.style.display='none';return;}
+    bar.style.display='block';
+    let doneQty=0,totalQty=0;
+    rows.forEach(r=>{const q=parseInt(r.getAttribute('data-qty'))||0;totalQty+=q;if(r.classList.contains('checked'))doneQty+=q;});
+    const pct=totalQty>0?Math.round((doneQty/totalQty)*100):0;
+    bar.querySelector('.prog-lbl').textContent=doneQty+' / '+totalQty+' pcs done';
+    bar.querySelector('.prog-pct').textContent=pct+'%';
+    bar.querySelector('.progress-fill').style.width=pct+'%';
   });
-
-  const totalSummary = document.getElementById('total-summary');
-  if (totalSummary) {
-    const totalRows = document.querySelectorAll('#total .sku-row[data-key]');
-    let doneQty = 0;
-    let totalQty = 0;
-    totalRows.forEach(r => {
-      const qty = parseInt(r.getAttribute('data-qty')) || 0;
-      totalQty += qty;
-      if (r.classList.contains('checked')) doneQty += qty;
-    });
-    if (totalQty > 0) {
-      totalSummary.style.display = 'block';
-      totalSummary.textContent = doneQty + ' / ' + totalQty + ' pcs prepped';
-    } else {
-      totalSummary.style.display = 'none';
-    }
+  const ts = document.getElementById('total-summary');
+  if(ts){
+    const rows=document.querySelectorAll('#total .sku-row[data-key]');
+    let dQ=0,tQ=0;
+    rows.forEach(r=>{const q=parseInt(r.getAttribute('data-qty'))||0;tQ+=q;if(r.classList.contains('checked'))dQ+=q;});
+    if(tQ>0){ts.style.display='block';ts.textContent=dQ+' / '+tQ+' pcs prepped';}
+    else ts.style.display='none';
   }
 }
 
-function getPrepDate() {
-  const now = new Date();
-  const d = new Date(now);
-  let label;
-  if (now.getHours() > 8 || (now.getHours() === 8 && now.getMinutes() >= 30)) {
-    d.setDate(d.getDate() + 1);
-    label = "Tomorrow's prep list";
-  } else {
-    label = "Today's prep list";
-  }
-  return {
-    tag: d.getDate() + " " + MONTHS[d.getMonth()] + " " + d.getFullYear(),
-    display: DAYS[d.getDay()] + ", " + d.getDate() + " " + MONTHS[d.getMonth()] + " " + d.getFullYear(),
-    subtitle: label
-  };
+function setStatus(ok,text){
+  document.getElementById("statusDot").className="status-dot"+(ok?"":" error");
+  document.getElementById("statusText").textContent=text;
 }
 
-function setStatus(ok, text) {
-  document.getElementById("statusDot").className = "status-dot" + (ok ? "" : " error");
-  document.getElementById("statusText").textContent = text;
-}
-
-function showPanel(id) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.sum-card').forEach(c => c.classList.remove('selected'));
-  const idx = {snap1:0, snap2:1, total:2}[id];
+  document.querySelectorAll('.sum-card').forEach(c=>c.classList.remove('selected'));
+  const idx={snap1:0,snap2:1,snap3:2,total:3}[id];
   document.querySelectorAll('.sum-card')[idx].classList.add('selected');
 }
 
-function selectAll(panel) {
-  const rows = document.querySelectorAll('#' + panel + ' .sku-row[data-key]');
-  let allChecked = true;
-  rows.forEach(r => { if (!r.classList.contains('checked')) allChecked = false; });
-
-  rows.forEach(r => {
-    const key = r.getAttribute('data-key');
-    if (allChecked) {
-      delete checkedItems[key];
-    } else {
-      checkedItems[key] = true;
-    }
-  });
-
-  if (!allChecked) playTickSound();
-  else playUntickSound();
-
-  saveChecks(currentDateTag);
-  updateCheckUI();
-
-  const totalRows2 = document.querySelectorAll('#total .sku-row[data-key]');
-  let allDone = true;
-  totalRows2.forEach(r => { if (!r.classList.contains('checked')) allDone = false; });
-  if (totalRows2.length > 0 && allDone) {
-    setTimeout(playJackpotSound, 200);
-  }
+function skuRowHtml(panel,sku,qty,prefix){
+  const key=panel+"|"+sku;
+  const isChecked=checkedItems[key]?' checked':'';
+  const val=prefix?prefix+qty:qty;
+  return '<div class="sku-row'+isChecked+'" data-key="'+key+'" data-qty="'+qty+'" onclick="toggleCheck(\''+panel+'\',\''+sku.replace(/'/g,"\\'")+'\')">'
+    +'<div class="sku-check"></div><span class="sku-name">'+sku+'</span><span class="sku-qty">'+val+'</span></div>';
 }
 
-function skuRowHtml(panel, cls, sku, qty, prefix) {
-  const key = panel + "|" + sku;
-  const isChecked = checkedItems[key] ? ' checked' : '';
-  const val = prefix ? prefix + qty : qty;
-  return '<div class="sku-row' + isChecked + '" data-key="' + key + '" data-qty="' + qty + '" onclick="toggleCheck(\'' + panel + '\',\'' + sku.replace(/'/g, "\\'") + '\')">' +
-    '<div class="sku-check"></div>' +
-    '<span class="sku-name">' + sku + '</span>' +
-    '<span class="sku-qty">' + val + '</span></div>';
+function progBarHtml(id,fillColor,borderColor){
+  return '<div id="prog-'+id+'" class="progress-bar" style="border-bottom:1px solid '+borderColor+';">'
+    +'<div class="progress-label"><span class="prog-lbl">0/0 pcs done</span><span class="prog-pct">0%</span></div>'
+    +'<div class="progress-track"><div class="progress-fill" style="width:0%;background:'+fillColor+';"></div></div></div>';
 }
 
-function renderContent(snap1Entries, snap2Entries) {
-  const snap1Total = snap1Entries.reduce((s, e) => s + e[1], 0);
-  const snap2Total = snap2Entries.reduce((s, e) => s + e[1], 0);
-  const combinedMap = {};
-  snap1Entries.forEach(([sku, qty]) => { combinedMap[sku] = (combinedMap[sku] || 0) + qty; });
-  snap2Entries.forEach(([sku, qty]) => { combinedMap[sku] = (combinedMap[sku] || 0) + qty; });
-  const combinedEntries = Object.entries(combinedMap).sort((a, b) => a[0].localeCompare(b[0]));
-  const grandTotal = combinedEntries.reduce((s, e) => s + e[1], 0);
+function renderContent(s1,s2,s3){
+  const s1T=s1.reduce((s,e)=>s+e[1],0), s2T=s2.reduce((s,e)=>s+e[1],0), s3T=s3.reduce((s,e)=>s+e[1],0);
+  const cMap={};
+  s1.forEach(([k,v])=>{cMap[k]=(cMap[k]||0)+v;});
+  s2.forEach(([k,v])=>{cMap[k]=(cMap[k]||0)+v;});
+  s3.forEach(([k,v])=>{cMap[k]=(cMap[k]||0)+v;});
+  const cEntries=Object.entries(cMap).sort((a,b)=>a[0].localeCompare(b[0]));
+  const gT=cEntries.reduce((s,e)=>s+e[1],0);
 
-  let html = '';
-  html += '<div class="cards">';
-  html += '<div class="sum-card s1" onclick="showPanel(\'snap1\')"><div class="num">' + snap1Total + '</div><div class="lbl">Confirmed</div></div>';
-  html += '<div class="sum-card s2" onclick="showPanel(\'snap2\')"><div class="num">+' + snap2Total + '</div><div class="lbl">Overnight</div></div>';
-  html += '<div class="sum-card s3 selected" onclick="showPanel(\'total\')"><div class="num">' + grandTotal + '</div><div class="lbl">Total</div></div>';
-  html += '</div>';
+  let h='<div class="cards">';
+  h+='<div class="sum-card s1" onclick="showPanel(\'snap1\')"><div class="num">'+s1T+'</div><div class="lbl">4:30pm</div></div>';
+  h+='<div class="sum-card s2" onclick="showPanel(\'snap2\')"><div class="num">+'+s2T+'</div><div class="lbl">Overnight</div></div>';
+  h+='<div class="sum-card s3" onclick="showPanel(\'snap3\')"><div class="num">+'+s3T+'</div><div class="lbl">Same day</div></div>';
+  h+='<div class="sum-card st selected" onclick="showPanel(\'total\')"><div class="num">'+gT+'</div><div class="lbl">Total</div></div>';
+  h+='</div>';
 
-  html += '<div id="snap1" class="panel"><div class="section s1">';
-  html += '<div class="section-head">Confirmed by 4:30pm <span class="section-badge">' + snap1Total + ' pcs</span></div>';
-  if (snap1Entries.length === 0) {
-    html += '<div class="empty-state">No orders confirmed yet</div>';
-  } else {
-    html += '<div id="prog-snap1" class="progress-bar" style="margin:0;border:none;border-radius:0;border-bottom:1px solid rgba(129,199,132,0.4);background:#d8f3dc;"><div class="progress-label"><span class="prog-lbl">0 / 0 done</span><span class="prog-pct">0%</span></div><div class="progress-track"><div class="progress-fill" style="width:0%;background:#2E7D32;"></div></div></div>';
-    html += '<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'snap1\')">Select all / Unselect all</button>';
-    snap1Entries.forEach(([sku, qty]) => { html += skuRowHtml('snap1', 's1', sku, qty, ''); });
-  }
-  html += '</div></div>';
+  // Snap 1
+  h+='<div id="snap1" class="panel"><div class="section s1">';
+  h+='<div class="section-head">Confirmed by 4:30pm <span class="section-badge">'+s1T+' pcs</span></div>';
+  if(s1.length===0) h+='<div class="empty-state">No orders confirmed yet</div>';
+  else{h+=progBarHtml('snap1','#2E7D32','rgba(129,199,132,0.4)');h+='<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'snap1\')">Select all / Unselect all</button>';s1.forEach(([k,v])=>{h+=skuRowHtml('snap1',k,v,'');});}
+  h+='</div></div>';
 
-  html += '<div id="snap2" class="panel"><div class="section s2">';
-  html += '<div class="section-head">Added overnight <span class="section-badge">+' + snap2Total + ' pcs</span></div>';
-  if (snap2Entries.length === 0) {
-    html += '<div class="empty-state">No overnight additions yet</div>';
-  } else {
-    html += '<div id="prog-snap2" class="progress-bar" style="margin:0;border:none;border-radius:0;border-bottom:1px solid rgba(255,204,128,0.4);background:#fff3e0;"><div class="progress-label"><span class="prog-lbl">0 / 0 done</span><span class="prog-pct">0%</span></div><div class="progress-track"><div class="progress-fill" style="width:0%;background:#EF6C00;"></div></div></div>';
-    html += '<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'snap2\')">Select all / Unselect all</button>';
-    snap2Entries.forEach(([sku, qty]) => { html += skuRowHtml('snap2', 's2', sku, qty, '+'); });
-  }
-  html += '</div></div>';
+  // Snap 2
+  h+='<div id="snap2" class="panel"><div class="section s2">';
+  h+='<div class="section-head">Overnight (4:30pm-8am) <span class="section-badge">+'+s2T+' pcs</span></div>';
+  if(s2.length===0) h+='<div class="empty-state">No overnight additions</div>';
+  else{h+=progBarHtml('snap2','#EF6C00','rgba(255,204,128,0.4)');h+='<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'snap2\')">Select all / Unselect all</button>';s2.forEach(([k,v])=>{h+=skuRowHtml('snap2',k,v,'+');});}
+  h+='</div></div>';
 
-  html += '<div id="total" class="panel active"><div class="section s3">';
-  html += '<div class="section-head">Total to prep <span class="section-badge">' + grandTotal + ' pcs</span></div>';
-  if (combinedEntries.length === 0) {
-    html += '<div class="empty-state">No orders yet</div>';
-  } else {
-    html += '<div id="total-summary" style="padding:10px 16px;background:#EDE7F6;font-size:13px;font-weight:600;color:#6A1B9A;text-align:center;border-bottom:1px solid rgba(206,147,216,0.35);">0 / 0 SKUs prepped</div>';
-    html += '<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'total\')">Select all / Unselect all</button>';
-    combinedEntries.forEach(([sku, qty]) => { html += skuRowHtml('total', 's3', sku, qty, ''); });
-  }
-  html += '</div></div>';
+  // Snap 3
+  h+='<div id="snap3" class="panel"><div class="section s3">';
+  h+='<div class="section-head">Same day (after 8am) <span class="section-badge">+'+s3T+' pcs</span></div>';
+  if(s3.length===0) h+='<div class="empty-state">No same-day orders yet</div>';
+  else{h+=progBarHtml('snap3','#1565C0','rgba(144,202,249,0.4)');h+='<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'snap3\')">Select all / Unselect all</button>';s3.forEach(([k,v])=>{h+=skuRowHtml('snap3',k,v,'+');});}
+  h+='</div></div>';
 
-  document.getElementById("content").innerHTML = html;
+  // Total
+  h+='<div id="total" class="panel active"><div class="section st">';
+  h+='<div class="section-head">Total to prep <span class="section-badge">'+gT+' pcs</span></div>';
+  if(cEntries.length===0) h+='<div class="empty-state">No orders yet</div>';
+  else{h+='<div id="total-summary" style="padding:10px 16px;background:#EDE7F6;font-size:13px;font-weight:600;color:#6A1B9A;text-align:center;border-bottom:1px solid rgba(206,147,216,0.35);">0/0 pcs prepped</div>';h+='<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'total\')">Select all / Unselect all</button>';cEntries.forEach(([k,v])=>{h+=skuRowHtml('total',k,v,'');});}
+  h+='</div></div>';
+
+  document.getElementById("content").innerHTML=h;
   updateCheckUI();
 }
 
-async function loadData() {
-  const prep = getPrepDate();
+async function loadData(){
+  defaultOffset = getDefaultOffset();
+  if(dateOffset===undefined) dateOffset=defaultOffset;
+  const prep = getDateFromOffset(dateOffset);
   currentDateTag = prep.tag;
-  document.getElementById("prepDate").textContent = prep.display;
-  document.getElementById("prepSub").textContent = prep.subtitle;
+  document.getElementById("prepDate").textContent=prep.display;
+
+  const defPrep = getDateFromOffset(defaultOffset);
+  if(prep.tag===defPrep.tag){
+    document.getElementById("prepSub").textContent = defaultOffset===0 ? "Today's prep list" : "Tomorrow's prep list";
+  } else {
+    document.getElementById("prepSub").textContent = "Viewing: " + prep.tag;
+  }
+  document.getElementById("todayBtn").style.display=(dateOffset===defaultOffset)?"none":"block";
 
   checkedItems = loadChecks(currentDateTag);
-  cleanOldChecks(currentDateTag);
 
-  try {
-    const response = await fetch(API_URL + "&date=" + encodeURIComponent(prep.tag));
-    if (!response.ok) throw new Error("Failed to fetch");
-    const data = await response.json();
-
-    if (data.error) {
-      setStatus(true, "No orders yet");
-      document.getElementById("content").innerHTML = '<div class="no-orders-msg">' + data.error + '</div>';
-      document.getElementById('progressWrap').style.display = 'none';
+  try{
+    const r = await fetch(API_URL+"&date="+encodeURIComponent(prep.tag));
+    if(!r.ok) throw new Error("Failed");
+    const data = await r.json();
+    if(data.error){
+      setStatus(true,"No orders");
+      document.getElementById("content").innerHTML='<div class="no-orders-msg">'+data.error+'</div>';
     } else {
-      const snap1 = Object.entries(data.snapshot1 || {}).sort((a, b) => a[0].localeCompare(b[0]));
-      const snap2 = Object.entries(data.snapshot2 || {}).sort((a, b) => a[0].localeCompare(b[0]));
-      const totalItems = snap1.reduce((s, e) => s + e[1], 0) + snap2.reduce((s, e) => s + e[1], 0);
-      renderContent(snap1, snap2);
-      setStatus(true, "Live \u00B7 " + totalItems + " total pcs");
+      const s1=Object.entries(data.snapshot1||{}).sort((a,b)=>a[0].localeCompare(b[0]));
+      const s2=Object.entries(data.snapshot2||{}).sort((a,b)=>a[0].localeCompare(b[0]));
+      const s3=Object.entries(data.snapshot3||{}).sort((a,b)=>a[0].localeCompare(b[0]));
+      const total=s1.reduce((s,e)=>s+e[1],0)+s2.reduce((s,e)=>s+e[1],0)+s3.reduce((s,e)=>s+e[1],0);
+      renderContent(s1,s2,s3);
+      setStatus(true,"Live \u00B7 "+total+" total pcs");
     }
-
-    document.getElementById("timestamp").textContent = "Updated: " + new Date().toLocaleTimeString("en-MY", { hour: "2-digit", minute: "2-digit" });
-
-  } catch (err) {
-    setStatus(false, "Connection error");
-    document.getElementById("content").innerHTML = '<div class="error-msg">Could not load data. Check your connection and try again.</div>';
+    document.getElementById("timestamp").textContent="Updated: "+new Date().toLocaleTimeString("en-MY",{hour:"2-digit",minute:"2-digit"});
+  }catch(err){
+    setStatus(false,"Connection error");
+    document.getElementById("content").innerHTML='<div class="error-msg">Could not load data. Check connection and try again.</div>';
   }
 }
 
+dateOffset = getDefaultOffset();
+defaultOffset = dateOffset;
 loadData();
-setInterval(loadData, 5 * 60 * 1000);
+setInterval(loadData, 5*60*1000);
 </script>
 </body>
 </html>
