@@ -127,13 +127,6 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     <span id="statusText">Connecting...</span>
   </div>
 
-  <div id="progressWrap" style="display:none;">
-    <div class="progress-bar">
-      <div class="progress-label"><span id="progLabel">0 / 0 done</span><span id="progPct">0%</span></div>
-      <div class="progress-track"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
-    </div>
-  </div>
-
   <div id="content">
     <div class="loading">
       <div class="loading-spinner"></div>
@@ -265,9 +258,9 @@ function toggleCheck(panel, sku) {
   updateCheckUI();
 
   const totalRows = document.querySelectorAll('#total .sku-row[data-key]');
-  let done = 0;
-  totalRows.forEach(r => { if (r.classList.contains('checked')) done++; });
-  if (totalRows.length > 0 && done === totalRows.length) {
+  let allChecked = true;
+  totalRows.forEach(r => { if (!r.classList.contains('checked')) allChecked = false; });
+  if (totalRows.length > 0 && allChecked) {
     setTimeout(playJackpotSound, 200);
   }
 }
@@ -285,21 +278,41 @@ function updateCheckUI() {
 }
 
 function updateProgress() {
-  const totalRows = document.querySelectorAll('#total .sku-row[data-key]');
-  if (totalRows.length === 0) {
-    document.getElementById('progressWrap').style.display = 'none';
-    return;
-  }
-  document.getElementById('progressWrap').style.display = 'block';
-  let done = 0;
-  totalRows.forEach(row => {
-    if (row.classList.contains('checked')) done++;
+  ['snap1', 'snap2'].forEach(panel => {
+    const rows = document.querySelectorAll('#' + panel + ' .sku-row[data-key]');
+    const bar = document.getElementById('prog-' + panel);
+    if (!bar || rows.length === 0) { if (bar) bar.style.display = 'none'; return; }
+    bar.style.display = 'block';
+    let doneQty = 0;
+    let totalQty = 0;
+    rows.forEach(r => {
+      const qty = parseInt(r.getAttribute('data-qty')) || 0;
+      totalQty += qty;
+      if (r.classList.contains('checked')) doneQty += qty;
+    });
+    const pct = totalQty > 0 ? Math.round((doneQty / totalQty) * 100) : 0;
+    bar.querySelector('.prog-lbl').textContent = doneQty + ' / ' + totalQty + ' pcs done';
+    bar.querySelector('.prog-pct').textContent = pct + '%';
+    bar.querySelector('.progress-fill').style.width = pct + '%';
   });
-  const total = totalRows.length;
-  const pct = Math.round((done / total) * 100);
-  document.getElementById('progLabel').textContent = done + ' / ' + total + ' done';
-  document.getElementById('progPct').textContent = pct + '%';
-  document.getElementById('progFill').style.width = pct + '%';
+
+  const totalSummary = document.getElementById('total-summary');
+  if (totalSummary) {
+    const totalRows = document.querySelectorAll('#total .sku-row[data-key]');
+    let doneQty = 0;
+    let totalQty = 0;
+    totalRows.forEach(r => {
+      const qty = parseInt(r.getAttribute('data-qty')) || 0;
+      totalQty += qty;
+      if (r.classList.contains('checked')) doneQty += qty;
+    });
+    if (totalQty > 0) {
+      totalSummary.style.display = 'block';
+      totalSummary.textContent = doneQty + ' / ' + totalQty + ' pcs prepped';
+    } else {
+      totalSummary.style.display = 'none';
+    }
+  }
 }
 
 function getPrepDate() {
@@ -352,10 +365,10 @@ function selectAll(panel) {
   saveChecks(currentDateTag);
   updateCheckUI();
 
-  const totalRows = document.querySelectorAll('#total .sku-row[data-key]');
-  let done = 0;
-  totalRows.forEach(r => { if (r.classList.contains('checked')) done++; });
-  if (totalRows.length > 0 && done === totalRows.length) {
+  const totalRows2 = document.querySelectorAll('#total .sku-row[data-key]');
+  let allDone = true;
+  totalRows2.forEach(r => { if (!r.classList.contains('checked')) allDone = false; });
+  if (totalRows2.length > 0 && allDone) {
     setTimeout(playJackpotSound, 200);
   }
 }
@@ -364,7 +377,7 @@ function skuRowHtml(panel, cls, sku, qty, prefix) {
   const key = panel + "|" + sku;
   const isChecked = checkedItems[key] ? ' checked' : '';
   const val = prefix ? prefix + qty : qty;
-  return '<div class="sku-row' + isChecked + '" data-key="' + key + '" onclick="toggleCheck(\'' + panel + '\',\'' + sku.replace(/'/g, "\\'") + '\')">' +
+  return '<div class="sku-row' + isChecked + '" data-key="' + key + '" data-qty="' + qty + '" onclick="toggleCheck(\'' + panel + '\',\'' + sku.replace(/'/g, "\\'") + '\')">' +
     '<div class="sku-check"></div>' +
     '<span class="sku-name">' + sku + '</span>' +
     '<span class="sku-qty">' + val + '</span></div>';
@@ -391,6 +404,7 @@ function renderContent(snap1Entries, snap2Entries) {
   if (snap1Entries.length === 0) {
     html += '<div class="empty-state">No orders confirmed yet</div>';
   } else {
+    html += '<div id="prog-snap1" class="progress-bar" style="margin:0;border:none;border-radius:0;border-bottom:1px solid rgba(129,199,132,0.4);background:#d8f3dc;"><div class="progress-label"><span class="prog-lbl">0 / 0 done</span><span class="prog-pct">0%</span></div><div class="progress-track"><div class="progress-fill" style="width:0%;background:#2E7D32;"></div></div></div>';
     html += '<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'snap1\')">Select all / Unselect all</button>';
     snap1Entries.forEach(([sku, qty]) => { html += skuRowHtml('snap1', 's1', sku, qty, ''); });
   }
@@ -401,6 +415,7 @@ function renderContent(snap1Entries, snap2Entries) {
   if (snap2Entries.length === 0) {
     html += '<div class="empty-state">No overnight additions yet</div>';
   } else {
+    html += '<div id="prog-snap2" class="progress-bar" style="margin:0;border:none;border-radius:0;border-bottom:1px solid rgba(255,204,128,0.4);background:#fff3e0;"><div class="progress-label"><span class="prog-lbl">0 / 0 done</span><span class="prog-pct">0%</span></div><div class="progress-track"><div class="progress-fill" style="width:0%;background:#EF6C00;"></div></div></div>';
     html += '<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'snap2\')">Select all / Unselect all</button>';
     snap2Entries.forEach(([sku, qty]) => { html += skuRowHtml('snap2', 's2', sku, qty, '+'); });
   }
@@ -411,6 +426,7 @@ function renderContent(snap1Entries, snap2Entries) {
   if (combinedEntries.length === 0) {
     html += '<div class="empty-state">No orders yet</div>';
   } else {
+    html += '<div id="total-summary" style="padding:10px 16px;background:#EDE7F6;font-size:13px;font-weight:600;color:#6A1B9A;text-align:center;border-bottom:1px solid rgba(206,147,216,0.35);">0 / 0 SKUs prepped</div>';
     html += '<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'total\')">Select all / Unselect all</button>';
     combinedEntries.forEach(([sku, qty]) => { html += skuRowHtml('total', 's3', sku, qty, ''); });
   }
