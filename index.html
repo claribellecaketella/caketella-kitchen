@@ -118,7 +118,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text)
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbwRy0feTpT4SDCblMZsrNNwNMH4YsODtOdlfjinuho2q59zFtpteyp64Ium2o5hrkPK/exec?mode=kitchen";
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const DAYS_W = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
 firebase.initializeApp({
   databaseURL: "https://bellechecklist-default-rtdb.asia-southeast1.firebasedatabase.app"
@@ -165,6 +165,14 @@ function playJackpotSound() {
   });
 }
 
+// Firebase key sanitization — Firebase keys cannot contain . # $ / [ ]
+function sanitizeKey(key) {
+  return key.replace(/\./g, "~dot~").replace(/#/g, "~hash~").replace(/\$/g, "~dollar~").replace(/\//g, "~slash~").replace(/\[/g, "~lb~").replace(/\]/g, "~rb~");
+}
+function desanitizeKey(key) {
+  return key.replace(/~dot~/g, ".").replace(/~hash~/g, "#").replace(/~dollar~/g, "$").replace(/~slash~/g, "/").replace(/~lb~/g, "[").replace(/~rb~/g, "]");
+}
+
 function firebasePath(dateTag) {
   return "kitchen-ticks/" + dateTag.replace(/\s/g, "_");
 }
@@ -173,19 +181,23 @@ function listenToFirebase(dateTag) {
   if (firebaseRef) firebaseRef.off();
   firebaseRef = db.ref(firebasePath(dateTag));
   firebaseRef.on("value", snap => {
-    checkedItems = snap.val() || {};
+    const raw = snap.val() || {};
+    checkedItems = {};
+    Object.keys(raw).forEach(k => { checkedItems[desanitizeKey(k)] = true; });
     updateCheckUI();
   });
 }
 
 function saveToFirebase() {
   if (!firebaseRef) return;
-  firebaseRef.set(checkedItems);
+  const sanitized = {};
+  Object.keys(checkedItems).forEach(k => { sanitized[sanitizeKey(k)] = true; });
+  firebaseRef.set(sanitized);
 }
 
 function getDateFromOffset(offset) {
   const now=new Date(),d=new Date(now);d.setDate(d.getDate()+offset);
-  return { tag:d.getDate()+" "+MONTHS[d.getMonth()]+" "+d.getFullYear(), display:DAYS[d.getDay()]+", "+d.getDate()+" "+MONTHS[d.getMonth()]+" "+d.getFullYear() };
+  return { tag:d.getDate()+" "+MONTHS[d.getMonth()]+" "+d.getFullYear(), display:DAYS_W[d.getDay()]+", "+d.getDate()+" "+MONTHS[d.getMonth()]+" "+d.getFullYear() };
 }
 
 function getDefaultOffset() {
@@ -337,9 +349,7 @@ async function loadData(){
   const defPrep=getDateFromOffset(defaultOffset);
   document.getElementById("prepSub").textContent=(prep.tag===defPrep.tag)?(defaultOffset===0?"Today's prep list":"Tomorrow's prep list"):"Viewing: "+prep.tag;
   document.getElementById("todayBtn").style.display=(dateOffset===defaultOffset)?"none":"block";
-
   listenToFirebase(currentDateTag);
-
   try{
     const r=await fetch(API_URL+"&date="+encodeURIComponent(prep.tag));
     if(!r.ok)throw new Error("Failed");
