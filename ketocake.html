@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Ketocake Kitchen</title>
+<style>
+  :root {
+    --bg: #f0f7f0;
+    --card: #ffffff;
+    --card-border: #d4e8d4;
+    --accent: #4a9e5c;
+    --accent-light: #e8f5e9;
+    --text: #2d3a2d;
+    --text-dim: #6b7f6b;
+    --keto-green: #2e7d32;
+    --keto-light: #c8e6c9;
+    --total-bg: #fff8e1;
+    --total-border: #ffe082;
+    --total-text: #f57f17;
+    --check-done: #81c784;
+    --danger: #e53935;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #2e7d32, #43a047);
+    color: white;
+    padding: 16px 16px 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(46,125,50,0.3);
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .brand { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+  .brand span { font-weight: 400; opacity: 0.85; }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    display: inline-block; margin-right: 6px;
+  }
+  .status-dot.live { background: #a5d6a7; box-shadow: 0 0 6px #a5d6a7; }
+  .status-dot.err { background: #ef9a9a; }
+  .status-text { font-size: 12px; opacity: 0.9; }
+
+  .header-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-arrow {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+  .nav-arrow:active { background: rgba(255,255,255,0.4); }
+  .date-display { text-align: center; }
+  .date-main { font-size: 16px; font-weight: 600; }
+  .date-sub { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+
+  #todayBtn {
+    display: none;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.4);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    cursor: pointer;
+    margin: 8px auto 0;
+    text-align: center;
+  }
+  #todayBtn:active { background: rgba(255,255,255,0.4); }
+
+  .refresh-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    font-size: 12px;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--card-border);
+    background: var(--card);
+  }
+  .refresh-btn {
+    background: var(--accent-light);
+    border: 1px solid var(--card-border);
+    color: var(--accent);
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .refresh-btn:active { background: var(--keto-light); }
+  .refresh-btn:disabled { opacity: 0.5; }
+
+  .total-card {
+    margin: 12px 16px;
+    background: var(--total-bg);
+    border: 1px solid var(--total-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .total-label { font-size: 14px; font-weight: 600; color: var(--text); }
+  .total-count {
+    font-size: 28px; font-weight: 800;
+    color: var(--total-text); letter-spacing: -1px;
+  }
+  .total-unit { font-size: 13px; font-weight: 400; color: var(--text-dim); }
+
+  #content { padding: 0 16px 20px; }
+
+  .section-title {
+    font-size: 13px; font-weight: 700;
+    color: var(--keto-green);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 16px 0 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .section-title::after {
+    content: ''; flex: 1; height: 1px; background: var(--keto-light);
+  }
+
+  .order-item {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .order-item:active { transform: scale(0.98); }
+  .order-item.checked {
+    background: var(--accent-light);
+    border-color: var(--check-done);
+  }
+  .order-item.checked .item-name {
+    text-decoration: line-through;
+    color: var(--text-dim);
+  }
+
+  .checkbox {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    font-size: 14px;
+    color: transparent;
+  }
+  .order-item.checked .checkbox {
+    background: var(--check-done);
+    border-color: var(--check-done);
+    color: white;
+  }
+
+  .item-info { flex: 1; min-width: 0; }
+  .item-name {
+    font-size: 14px; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .item-qty {
+    font-size: 22px; font-weight: 800;
+    color: var(--keto-green);
+    min-width: 36px; text-align: right;
+  }
+  .order-item.checked .item-qty { color: var(--text-dim); }
+
+  .progress-bar {
+    margin: 16px 0 8px;
+    background: #e0e0e0;
+    border-radius: 8px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--keto-green));
+    border-radius: 8px;
+    transition: width 0.4s ease;
+  }
+  .progress-text {
+    font-size: 12px; color: var(--text-dim);
+    text-align: center; margin-top: 4px;
+  }
+
+  .no-orders-msg, .error-msg {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 15px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+  .no-orders-msg::before { content: '🥬'; display: block; font-size: 48px; margin-bottom: 12px; }
+  .error-msg { color: var(--danger); }
+  .error-msg::before { content: '⚠️'; display: block; font-size: 48px; margin-bottom: 12px; }
+
+  .loading { text-align: center; padding: 60px 20px; }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--keto-light);
+    border-top-color: var(--keto-green);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 14px; color: var(--text-dim); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="brand">🥬 Ketocake <span>Kitchen</span></div>
+    <div>
+      <span class="status-dot live" id="statusDot"></span>
+      <span class="status-text" id="statusText">Loading...</span>
+    </div>
+  </div>
+  <div class="header-nav">
+    <button class="nav-arrow" onclick="changeDate(-1)">‹</button>
+    <div class="date-display">
+      <div class="date-main" id="dateMain">Loading...</div>
+      <div class="date-sub" id="dateSub"></div>
+    </div>
+    <button class="nav-arrow" onclick="changeDate(1)">›</button>
+  </div>
+  <div id="todayBtn" onclick="goToDefault()">↩ Back to default</div>
+</div>
+
+<div class="refresh-bar">
+  <span id="timestamp">—</span>
+  <button class="refresh-btn" id="refreshBtn" onclick="loadData()">Refresh</button>
+</div>
+
+<div class="total-card">
+  <div class="total-label">Total Pieces</div>
+  <div><span class="total-count" id="totalCount">0</span> <span class="total-unit">pcs</span></div>
+</div>
+
+<div id="content">
+  <div class="loading"><div class="spinner"></div><div class="loading-text">Loading order data...</div></div>
+</div>
+
+<audio id="checkSound" preload="auto">
+  <source src="data:audio/wav;base64,UklGRiQDAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQADAABkAKgA3AAOAT4BYgF+AZQBnAGeAZgBiAFyAVIBLAEAAc4AmABeACIA5P+k/2T/JP/m/qz+dv5E/hj+8v3S/bj9pP2W/ZD9kP2W/aL9tP3K/eT9Av4k/kj+bP6S/rj+3v4A/yD/PP9W/2z/fv+M/5b/nP+c/5j/kP+E/3T/YP9K/zL/GP/+/uT+yP6u/pb+gP5u/mD+Vv5S/lL+WP5k/nT+iv6k/sT+6P4Q/zz/bP+c/9D/BAAkADQAPAA8ADQAJAAMAOz/yP+g/3T/RP8U/+T+tv6M/mT+Qv4k/gz++P3q/eD93P3e/eT97v38/Q7+Jv5A/l7+fP6e/sD+5P4I/yz/UP9y/5L/sP/K/+D/8v8AAAgADAIIAAD/8v/g/8r/sP+S/3L/UP8s/wj/5P7A/p7+fP5e/kD+Jv4O/vz97v3k/dz93v3g/er9+P0M/iT+Qv5k/oz+tv7k/hT/RP90/6D/yP/s/wwAJAA0ADwAPAA0ACQADADS/7D/kP9y/1b/PP8g/wD/3v64/pL+bP5I/iT+Av3k/cr9tP2i/ZD9kP2W/aT9uP3S/fL9GP5E/nT+rP7m/iT/ZP+k/+T/IgBgAJ4A2AAOATwBYgF+AZQBnAGeAZgBiAFyAVIBLAEAAc4AmABgACIA" type="audio/wav">
+</audio>
+<audio id="uncheckSound" preload="auto">
+  <source src="data:audio/wav;base64,UklGRiQDAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQADAABkAFIAPAAkAAwA8v/g/8r/sP+S/3L/UP8s/wj/5P7A/p7+fP5e/kD+Jv4O/vz97v3k/dz93v3g/er9+P0M/iT+Qv5k/oz+tv7k/hT/RP90/6D/yP/s/wwAJAA0ADwAPAA0ACQADADS/7D/kP9y/1b/PP8g/wD/3v64/pL+bP5I/iT+Av3k/cr9tP2i/ZD9kP2W/aT9uP3S/fL9GP5E/nT+rP7m/iT/ZP+k/+T/IgBgAJ4A2AAOATwBYgF+AZQBnAGeAZgBiAFyAVIBLAEAAc4AmABgACIA5P+k/2T/JP/m/qz+dv5E/hj+8v3S/bj9pP2W/ZD9kP2W/aL9tP3K/eT9Av4k/kj+bP6S/rj+3v4A/yD/PP9W/2z/fv+M/5b/nP+c/5j/kP+E/3T/YP9K/zL/GP/+/uT+yP6u/pb+gP5u/mD+Vv5S/lL+WP5k/nT+iv6k/sT+6P4Q/zz/bP+c/9D/BAAkADQAPAA8ADQAJAAMAOz/yP+g/3T/RP8U/+T+tv6M/mT+Qv4k/gz++P3q/eD93P3e/eT97v38/Q7+Jv5A/l7+fP6e/sD+5P4I/yz/UP9y/5L/sP/K/+D/8v8AAAgADAIIAAD/8v/g/8r/sP+S/3L/UP8s/wj/5P7A/p7+fP5e/kD+Jv4O/vz97v3k/dz93v3g/er9+P0M/iT+Qv5k/oz+tv7k/hT/RP90/6D/yP/s/wwAJAA0ADwAPAA0ACQADADS/7D/" type="audio/wav">
+</audio>
+
+<script>
+// ═══════════════════════════════════════
+// CONFIG — Your Ketocake Google Sheet ID
+// ═══════════════════════════════════════
+const SHEET_ID = "1ErwQzkkttsFu7XLltURLXSiz2IO3Onunj9oyg5ZK6G0";
+
+// ═══════════════════════════════════════
+// DATE LOGIC
+// ═══════════════════════════════════════
+var dateOffset = 0;
+var defaultOffset = 0;
+
+function getMYT() {
+  return new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kuala_Lumpur" }));
+}
+
+function getDefaultOffset() {
+  var now = getMYT();
+  if (now.getHours() < 8 || (now.getHours() === 8 && now.getMinutes() < 30)) return 0;
+  return 1;
+}
+
+function getTargetDate() {
+  var d = new Date(getMYT());
+  d.setDate(d.getDate() + dateOffset);
+  return d;
+}
+
+// Sheet tab name format: "2026-04-16 Thu"
+function getSheetName() {
+  var d = getTargetDate();
+  var days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  var yyyy = d.getFullYear();
+  var mm = String(d.getMonth()+1).padStart(2,'0');
+  var dd = String(d.getDate()).padStart(2,'0');
+  return yyyy + "-" + mm + "-" + dd + " " + days[d.getDay()];
+}
+
+function getDateDisplay() {
+  var d = getTargetDate();
+  var days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return {
+    main: d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear(),
+    sub: days[d.getDay()],
+    tag: d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear()
+  };
+}
+
+function changeDate(dir) { dateOffset += dir; loadData(); }
+function goToDefault() { dateOffset = defaultOffset; loadData(); }
+
+// ═══════════════════════════════════════
+// FETCH DIRECTLY FROM GOOGLE SHEET
+// Uses Google Visualization API — no Apps Script needed
+// Reads column R (Product) from the date tab
+// ═══════════════════════════════════════
+async function fetchSheetData(sheetName) {
+  var url = "https://docs.google.com/spreadsheets/d/" + SHEET_ID +
+    "/gviz/tq?tqx=out:json&sheet=" + encodeURIComponent(sheetName) +
+    "&tq=" + encodeURIComponent("SELECT R WHERE R IS NOT NULL");
+
+  var r = await fetch(url);
+  var text = await r.text();
+
+  // Google wraps response in callback — extract JSON
+  var match = text.match(/google\.visualization\.Query\.setResponse\((.+)\);?\s*$/);
+  if (!match || !match[1]) throw new Error("NO_SHEET");
+
+  var data = JSON.parse(match[1]);
+  if (data.status === "error") throw new Error("NO_SHEET");
+
+  var rows = data.table.rows || [];
+  var totals = {};
+
+  for (var i = 0; i < rows.length; i++) {
+    var cell = rows[i].c[0];
+    if (!cell || !cell.v) continue;
+    var product = String(cell.v).trim();
+    // Skip header row, empty, or formula errors
+    if (!product || product === "#N/A" || product === "#REF!" ||
+        product === "#VALUE!" || product === "Product" ||
+        product.toLowerCase() === "product") continue;
+    totals[product] = (totals[product] || 0) + 1;
+  }
+
+  return totals;
+}
+
+// ═══════════════════════════════════════
+// CHECKBOX PERSISTENCE (localStorage)
+// ═══════════════════════════════════════
+var checkedItems = {};
+var currentDateTag = "";
+
+function loadChecks(tag) {
+  try { var s = localStorage.getItem("kc_kitchen_"+tag); return s ? JSON.parse(s) : {}; }
+  catch(e) { return {}; }
+}
+function saveChecks(tag, checks) {
+  try { localStorage.setItem("kc_kitchen_"+tag, JSON.stringify(checks)); } catch(e) {}
+}
+
+function toggleItem(el) {
+  var name = el.getAttribute("data-name");
+  if (checkedItems[name]) {
+    delete checkedItems[name];
+    document.getElementById("uncheckSound").play().catch(function(){});
+  } else {
+    checkedItems[name] = true;
+    document.getElementById("checkSound").play().catch(function(){});
+  }
+  saveChecks(currentDateTag, checkedItems);
+  updateUI();
+}
+
+function updateUI() {
+  document.querySelectorAll(".order-item").forEach(function(el) {
+    var name = el.getAttribute("data-name");
+    if (checkedItems[name]) {
+      el.classList.add("checked");
+      el.querySelector(".checkbox").textContent = "✓";
+    } else {
+      el.classList.remove("checked");
+      el.querySelector(".checkbox").textContent = "";
+    }
+  });
+  updateProgress();
+}
+
+function updateProgress() {
+  var total = document.querySelectorAll(".order-item").length;
+  var done = document.querySelectorAll(".order-item.checked").length;
+  var pct = total > 0 ? Math.round((done/total)*100) : 0;
+  var fill = document.getElementById("progressFill");
+  var text = document.getElementById("progressText");
+  if (fill) fill.style.width = pct + "%";
+  if (text) text.textContent = done + " / " + total + " items done (" + pct + "%)";
+}
+
+// ═══════════════════════════════════════
+// STATUS
+// ═══════════════════════════════════════
+function setStatus(ok, msg) {
+  document.getElementById("statusDot").className = "status-dot " + (ok ? "live" : "err");
+  document.getElementById("statusText").textContent = msg;
+}
+
+// ═══════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════
+function renderContent(orders) {
+  var sorted = Object.entries(orders).sort(function(a,b){ return a[0].localeCompare(b[0]); });
+  var total = sorted.reduce(function(s,e){ return s+e[1]; }, 0);
+  document.getElementById("totalCount").textContent = total;
+
+  var html = '<div class="section-title">🥬 Orders</div>';
+  sorted.forEach(function(item) {
+    var name = item[0];
+    var qty = item[1];
+    var isChecked = checkedItems[name] ? " checked" : "";
+    var checkMark = checkedItems[name] ? "✓" : "";
+    var safe = name.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;');
+    html += '<div class="order-item'+isChecked+'" data-name="'+safe+'" onclick="toggleItem(this)">';
+    html += '<div class="checkbox">'+checkMark+'</div>';
+    html += '<div class="item-info"><div class="item-name">'+safe+'</div></div>';
+    html += '<div class="item-qty">'+qty+'</div>';
+    html += '</div>';
+  });
+
+  html += '<div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>';
+  html += '<div class="progress-text" id="progressText">0 / '+sorted.length+' items done (0%)</div>';
+
+  document.getElementById("content").innerHTML = html;
+  updateProgress();
+}
+
+// ═══════════════════════════════════════
+// LOAD DATA
+// ═══════════════════════════════════════
+async function loadData() {
+  var btn = document.getElementById("refreshBtn");
+  btn.textContent = "Refreshing...";
+  btn.disabled = true;
+
+  var disp = getDateDisplay();
+  document.getElementById("dateMain").textContent = disp.main;
+
+  if (dateOffset === defaultOffset) {
+    document.getElementById("todayBtn").style.display = "none";
+    document.getElementById("dateSub").textContent = disp.sub + (defaultOffset === 0 ? " · Today's orders" : " · Tomorrow's orders");
+  } else {
+    document.getElementById("todayBtn").style.display = "block";
+    document.getElementById("dateSub").textContent = disp.sub;
+  }
+
+  currentDateTag = disp.tag;
+  checkedItems = loadChecks(currentDateTag);
+
+  try {
+    var orders = await fetchSheetData(getSheetName());
+    var keys = Object.keys(orders);
+
+    if (keys.length === 0) {
+      setStatus(true, "No orders");
+      document.getElementById("totalCount").textContent = "0";
+      document.getElementById("content").innerHTML = '<div class="no-orders-msg">No orders for '+disp.main+'</div>';
+    } else {
+      var total = Object.values(orders).reduce(function(s,v){ return s+v; }, 0);
+      renderContent(orders);
+      setStatus(true, "Live · "+total+" total pcs");
+    }
+    document.getElementById("timestamp").textContent = "Updated: " + new Date().toLocaleTimeString("en-MY",{hour:"2-digit",minute:"2-digit"});
+
+  } catch(err) {
+    if (err.message === "NO_SHEET") {
+      setStatus(true, "No orders");
+      document.getElementById("totalCount").textContent = "0";
+      document.getElementById("content").innerHTML = '<div class="no-orders-msg">No orders for '+disp.main+'</div>';
+      document.getElementById("timestamp").textContent = "Updated: " + new Date().toLocaleTimeString("en-MY",{hour:"2-digit",minute:"2-digit"});
+    } else {
+      setStatus(false, "Connection error");
+      document.getElementById("content").innerHTML = '<div class="error-msg">Could not load data. Check connection and try again.</div>';
+    }
+  }
+
+  btn.textContent = "Refresh";
+  btn.disabled = false;
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+dateOffset = getDefaultOffset();
+defaultOffset = dateOffset;
+loadData();
+setInterval(loadData, 5 * 60 * 1000);
+</script>
+</body>
+</html>
