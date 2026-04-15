@@ -4,58 +4,87 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Ketocake Kitchen</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <style>
   :root {
-    --bg: #f0f7f0;
+    --bg: #faf5ed;
+    --bg-warm: #f5ede0;
     --card: #ffffff;
-    --card-border: #d4e8d4;
-    --accent: #4a9e5c;
-    --accent-light: #e8f5e9;
-    --text: #2d3a2d;
-    --text-dim: #6b7f6b;
-    --keto-green: #2e7d32;
-    --keto-light: #c8e6c9;
-    --total-bg: #fff8e1;
-    --total-border: #ffe082;
-    --total-text: #f57f17;
-    --check-done: #81c784;
-    --danger: #e53935;
+    --card-hover: #fdf9f3;
+    --border: #e8dcc8;
+    --border-light: #efe4d4;
+    --orange: #e07c3e;
+    --orange-light: #f0964f;
+    --orange-dim: rgba(224,124,62,0.10);
+    --orange-glow: rgba(224,124,62,0.20);
+    --brown: #6b4e37;
+    --brown-light: #8a6d55;
+    --text: #3d2e1f;
+    --text-dim: #8a7968;
+    --text-muted: #b5a797;
+    --cream: #fdf8f0;
+    --check-done: #e07c3e;
+    --danger: #c94a4a;
+    --total-bg: rgba(224,124,62,0.07);
+    --total-border: rgba(224,124,62,0.22);
   }
 
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
     padding-bottom: 40px;
   }
 
+  /* ─── HEADER ─── */
   .header {
-    background: linear-gradient(135deg, #2e7d32, #43a047);
+    background: linear-gradient(135deg, #e07c3e, #d4722e);
     color: white;
-    padding: 16px 16px 14px;
+    padding: 18px 16px 14px;
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 2px 8px rgba(46,125,50,0.3);
+    box-shadow: 0 3px 12px rgba(224,124,62,0.25);
   }
   .header-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
-  .brand { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
-  .brand span { font-weight: 400; opacity: 0.85; }
+  .brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.5px;
+  }
+  .brand span {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    opacity: 0.85;
+    margin-left: 6px;
+  }
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 20px;
+    padding: 4px 10px;
+  }
   .status-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    display: inline-block; margin-right: 6px;
+    width: 7px; height: 7px; border-radius: 50%;
   }
-  .status-dot.live { background: #a5d6a7; box-shadow: 0 0 6px #a5d6a7; }
+  .status-dot.live { background: #ffe0b2; box-shadow: 0 0 6px #ffe0b2; }
   .status-dot.err { background: #ef9a9a; }
-  .status-text { font-size: 12px; opacity: 0.9; }
+  .status-text { font-size: 11px; opacity: 0.9; }
 
   .header-nav {
     display: flex;
@@ -63,10 +92,10 @@
     justify-content: space-between;
   }
   .nav-arrow {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.18);
     border: none;
     color: white;
-    width: 36px; height: 36px;
+    width: 38px; height: 38px;
     border-radius: 50%;
     font-size: 18px;
     cursor: pointer;
@@ -75,182 +104,244 @@
     justify-content: center;
     transition: background 0.2s;
   }
-  .nav-arrow:active { background: rgba(255,255,255,0.4); }
+  .nav-arrow:active { background: rgba(255,255,255,0.35); }
   .date-display { text-align: center; }
-  .date-main { font-size: 16px; font-weight: 600; }
+  .date-main {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: white;
+  }
   .date-sub { font-size: 11px; opacity: 0.8; margin-top: 2px; }
 
   #todayBtn {
     display: none;
-    background: rgba(255,255,255,0.2);
-    border: 1px solid rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.3);
     color: white;
-    padding: 4px 12px;
+    padding: 4px 14px;
     border-radius: 20px;
     font-size: 11px;
+    font-weight: 500;
     cursor: pointer;
-    margin: 8px auto 0;
+    margin: 10px auto 0;
     text-align: center;
   }
-  #todayBtn:active { background: rgba(255,255,255,0.4); }
+  #todayBtn:active { background: rgba(255,255,255,0.35); }
 
+  /* ─── REFRESH BAR ─── */
   .refresh-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 10px 16px;
-    font-size: 12px;
-    color: var(--text-dim);
-    border-bottom: 1px solid var(--card-border);
-    background: var(--card);
+    font-size: 11px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    background: var(--cream);
   }
   .refresh-btn {
-    background: var(--accent-light);
-    border: 1px solid var(--card-border);
-    color: var(--accent);
-    padding: 5px 14px;
+    background: var(--orange-dim);
+    border: 1px solid rgba(224,124,62,0.25);
+    color: var(--orange);
+    padding: 5px 16px;
     border-radius: 20px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.3px;
   }
-  .refresh-btn:active { background: var(--keto-light); }
-  .refresh-btn:disabled { opacity: 0.5; }
+  .refresh-btn:active { background: var(--orange-glow); }
+  .refresh-btn:disabled { opacity: 0.4; }
 
+  /* ─── TOTAL CARD ─── */
   .total-card {
-    margin: 12px 16px;
+    margin: 14px 16px;
     background: var(--total-bg);
     border: 1px solid var(--total-border);
-    border-radius: 12px;
-    padding: 14px 16px;
+    border-radius: 14px;
+    padding: 16px 18px;
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
-  .total-label { font-size: 14px; font-weight: 600; color: var(--text); }
-  .total-count {
-    font-size: 28px; font-weight: 800;
-    color: var(--total-text); letter-spacing: -1px;
+  .total-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--brown-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
-  .total-unit { font-size: 13px; font-weight: 400; color: var(--text-dim); }
+  .total-count {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--orange);
+    letter-spacing: -1px;
+  }
+  .total-unit { font-size: 13px; font-weight: 400; color: var(--text-dim); margin-left: 4px; }
 
+  /* ─── CONTENT ─── */
   #content { padding: 0 16px 20px; }
 
   .section-title {
-    font-size: 13px; font-weight: 700;
-    color: var(--keto-green);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--orange);
     text-transform: uppercase;
-    letter-spacing: 1px;
-    margin: 16px 0 10px;
-    display: flex; align-items: center; gap: 6px;
+    letter-spacing: 1.5px;
+    margin: 18px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
   .section-title::after {
-    content: ''; flex: 1; height: 1px; background: var(--keto-light);
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
   }
 
+  /* ─── ORDER ITEMS ─── */
   .order-item {
     background: var(--card);
-    border: 1px solid var(--card-border);
-    border-radius: 10px;
-    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
     margin-bottom: 8px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     cursor: pointer;
     transition: all 0.15s;
     -webkit-user-select: none;
     user-select: none;
+    box-shadow: 0 1px 3px rgba(107,78,55,0.04);
   }
-  .order-item:active { transform: scale(0.98); }
+  .order-item:active { transform: scale(0.98); background: var(--card-hover); }
   .order-item.checked {
-    background: var(--accent-light);
-    border-color: var(--check-done);
+    background: var(--orange-dim);
+    border-color: rgba(224,124,62,0.30);
   }
   .order-item.checked .item-name {
     text-decoration: line-through;
-    color: var(--text-dim);
+    color: var(--text-muted);
   }
 
   .checkbox {
     width: 26px; height: 26px;
     border-radius: 50%;
-    border: 2px solid #ccc;
+    border: 2px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     transition: all 0.2s;
-    font-size: 14px;
+    font-size: 13px;
     color: transparent;
   }
   .order-item.checked .checkbox {
-    background: var(--check-done);
-    border-color: var(--check-done);
+    background: var(--orange);
+    border-color: var(--orange);
     color: white;
+    font-weight: 700;
   }
 
   .item-info { flex: 1; min-width: 0; }
   .item-name {
-    font-size: 14px; font-weight: 600;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .item-qty {
-    font-size: 22px; font-weight: 800;
-    color: var(--keto-green);
-    min-width: 36px; text-align: right;
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--orange);
+    min-width: 36px;
+    text-align: right;
   }
-  .order-item.checked .item-qty { color: var(--text-dim); }
+  .order-item.checked .item-qty { color: var(--text-muted); }
 
+  /* ─── PROGRESS ─── */
+  .progress-wrap { margin: 18px 0 8px; }
   .progress-bar {
-    margin: 16px 0 8px;
-    background: #e0e0e0;
+    background: var(--border-light);
     border-radius: 8px;
-    height: 8px;
+    height: 6px;
     overflow: hidden;
   }
   .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--keto-green));
+    background: linear-gradient(90deg, var(--orange), var(--orange-light));
     border-radius: 8px;
     transition: width 0.4s ease;
   }
   .progress-text {
-    font-size: 12px; color: var(--text-dim);
-    text-align: center; margin-top: 4px;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 6px;
+    letter-spacing: 0.3px;
   }
 
+  /* ─── EMPTY / ERROR ─── */
   .no-orders-msg, .error-msg {
     text-align: center;
     padding: 60px 20px;
-    font-size: 15px;
+    font-size: 14px;
     color: var(--text-dim);
     line-height: 1.6;
   }
-  .no-orders-msg::before { content: '🥬'; display: block; font-size: 48px; margin-bottom: 12px; }
+  .no-orders-msg::before { content: '🍰'; display: block; font-size: 48px; margin-bottom: 12px; }
   .error-msg { color: var(--danger); }
   .error-msg::before { content: '⚠️'; display: block; font-size: 48px; margin-bottom: 12px; }
 
   .loading { text-align: center; padding: 60px 20px; }
   .spinner {
-    width: 36px; height: 36px;
-    border: 3px solid var(--keto-light);
-    border-top-color: var(--keto-green);
+    width: 32px; height: 32px;
+    border: 2px solid var(--border);
+    border-top-color: var(--orange);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
     margin: 0 auto 16px;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { font-size: 14px; color: var(--text-dim); }
+  .loading-text { font-size: 13px; color: var(--text-dim); }
+
+  /* ─── SYNC INDICATOR ─── */
+  .sync-status {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 10px;
+    color: var(--orange);
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 200;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(107,78,55,0.1);
+  }
+  .sync-status.show { opacity: 1; }
 </style>
 </head>
 <body>
 
 <div class="header">
   <div class="header-top">
-    <div class="brand">🥬 Ketocake <span>Kitchen</span></div>
-    <div>
+    <div class="brand">Ketocake<span>Kitchen</span></div>
+    <div class="status-pill">
       <span class="status-dot live" id="statusDot"></span>
       <span class="status-text" id="statusText">Loading...</span>
     </div>
@@ -268,17 +359,19 @@
 
 <div class="refresh-bar">
   <span id="timestamp">—</span>
-  <button class="refresh-btn" id="refreshBtn" onclick="loadData()">Refresh</button>
+  <button class="refresh-btn" id="refreshBtn" onclick="loadData()">REFRESH</button>
 </div>
 
 <div class="total-card">
   <div class="total-label">Total Pieces</div>
-  <div><span class="total-count" id="totalCount">0</span> <span class="total-unit">pcs</span></div>
+  <div><span class="total-count" id="totalCount">0</span><span class="total-unit">pcs</span></div>
 </div>
 
 <div id="content">
-  <div class="loading"><div class="spinner"></div><div class="loading-text">Loading order data...</div></div>
+  <div class="loading"><div class="spinner"></div><div class="loading-text">Loading orders...</div></div>
 </div>
+
+<div class="sync-status" id="syncStatus">Synced ✓</div>
 
 <audio id="checkSound" preload="auto">
   <source src="data:audio/wav;base64,UklGRiQDAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQADAABkAKgA3AAOAT4BYgF+AZQBnAGeAZgBiAFyAVIBLAEAAc4AmABeACIA5P+k/2T/JP/m/qz+dv5E/hj+8v3S/bj9pP2W/ZD9kP2W/aL9tP3K/eT9Av4k/kj+bP6S/rj+3v4A/yD/PP9W/2z/fv+M/5b/nP+c/5j/kP+E/3T/YP9K/zL/GP/+/uT+yP6u/pb+gP5u/mD+Vv5S/lL+WP5k/nT+iv6k/sT+6P4Q/zz/bP+c/9D/BAAkADQAPAA8ADQAJAAMAOz/yP+g/3T/RP8U/+T+tv6M/mT+Qv4k/gz++P3q/eD93P3e/eT97v38/Q7+Jv5A/l7+fP6e/sD+5P4I/yz/UP9y/5L/sP/K/+D/8v8AAAgADAIIAAD/8v/g/8r/sP+S/3L/UP8s/wj/5P7A/p7+fP5e/kD+Jv4O/vz97v3k/dz93v3g/er9+P0M/iT+Qv5k/oz+tv7k/hT/RP90/6D/yP/s/wwAJAA0ADwAPAA0ACQADADS/7D/kP9y/1b/PP8g/wD/3v64/pL+bP5I/iT+Av3k/cr9tP2i/ZD9kP2W/aT9uP3S/fL9GP5E/nT+rP7m/iT/ZP+k/+T/IgBgAJ4A2AAOATwBYgF+AZQBnAGeAZgBiAFyAVIBLAEAAc4AmABgACIA" type="audio/wav">
@@ -289,9 +382,17 @@
 
 <script>
 // ═══════════════════════════════════════
-// CONFIG — Your Ketocake Google Sheet ID
+// FIREBASE CONFIG
 // ═══════════════════════════════════════
-const SHEET_ID = "1ErwQzkkttsFu7XLltURLXSiz2IO3Onunj9oyg5ZK6G0";
+firebase.initializeApp({
+  databaseURL: "https://bellechecklist-default-rtdb.asia-southeast1.firebasedatabase.app"
+});
+var db = firebase.database();
+
+// ═══════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════
+var SHEET_ID = "1ErwQzkkttsFu7XLltURLXSiz2IO3Onunj9oyg5ZK6G0";
 
 // ═══════════════════════════════════════
 // DATE LOGIC
@@ -302,20 +403,16 @@ var defaultOffset = 0;
 function getMYT() {
   return new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kuala_Lumpur" }));
 }
-
 function getDefaultOffset() {
   var now = getMYT();
   if (now.getHours() < 8 || (now.getHours() === 8 && now.getMinutes() < 30)) return 0;
   return 1;
 }
-
 function getTargetDate() {
   var d = new Date(getMYT());
   d.setDate(d.getDate() + dateOffset);
   return d;
 }
-
-// Sheet tab name format: "2026-04-16 Thu"
 function getSheetName() {
   var d = getTargetDate();
   var days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
@@ -324,7 +421,6 @@ function getSheetName() {
   var dd = String(d.getDate()).padStart(2,'0');
   return yyyy + "-" + mm + "-" + dd + " " + days[d.getDay()];
 }
-
 function getDateDisplay() {
   var d = getTargetDate();
   var days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -332,81 +428,104 @@ function getDateDisplay() {
   return {
     main: d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear(),
     sub: days[d.getDay()],
-    tag: d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear()
+    tag: d.getDate() + "-" + months[d.getMonth()] + "-" + d.getFullYear()
   };
 }
-
 function changeDate(dir) { dateOffset += dir; loadData(); }
 function goToDefault() { dateOffset = defaultOffset; loadData(); }
 
 // ═══════════════════════════════════════
-// FETCH DIRECTLY FROM GOOGLE SHEET
-// Uses Google Visualization API — no Apps Script needed
-// Reads column R (Product) from the date tab
+// FETCH FROM GOOGLE SHEET
 // ═══════════════════════════════════════
 async function fetchSheetData(sheetName) {
   var url = "https://docs.google.com/spreadsheets/d/" + SHEET_ID +
     "/gviz/tq?tqx=out:json&sheet=" + encodeURIComponent(sheetName) +
     "&tq=" + encodeURIComponent("SELECT R WHERE R IS NOT NULL");
-
   var r = await fetch(url);
   var text = await r.text();
-
-  // Google wraps response in callback — extract JSON
   var match = text.match(/google\.visualization\.Query\.setResponse\((.+)\);?\s*$/);
   if (!match || !match[1]) throw new Error("NO_SHEET");
-
   var data = JSON.parse(match[1]);
   if (data.status === "error") throw new Error("NO_SHEET");
-
   var rows = data.table.rows || [];
   var totals = {};
-
   for (var i = 0; i < rows.length; i++) {
     var cell = rows[i].c[0];
     if (!cell || !cell.v) continue;
     var product = String(cell.v).trim();
-    // Skip header row, empty, or formula errors
     if (!product || product === "#N/A" || product === "#REF!" ||
-        product === "#VALUE!" || product === "Product" ||
-        product.toLowerCase() === "product") continue;
+        product === "#VALUE!" || product.toLowerCase() === "product") continue;
     totals[product] = (totals[product] || 0) + 1;
   }
-
   return totals;
 }
 
 // ═══════════════════════════════════════
-// CHECKBOX PERSISTENCE (localStorage)
+// FIREBASE TICK SYNC
 // ═══════════════════════════════════════
 var checkedItems = {};
 var currentDateTag = "";
+var fbRef = null;
+var fbListener = null;
 
-function loadChecks(tag) {
-  try { var s = localStorage.getItem("kc_kitchen_"+tag); return s ? JSON.parse(s) : {}; }
-  catch(e) { return {}; }
+function getFirebasePath(tag) {
+  return "ketocake-kitchen/" + tag.replace(/[.#$\[\]\/]/g, "_");
 }
-function saveChecks(tag, checks) {
-  try { localStorage.setItem("kc_kitchen_"+tag, JSON.stringify(checks)); } catch(e) {}
+
+function sanitizeKey(name) {
+  return name.replace(/[.#$\[\]\/]/g, "_");
+}
+
+function loadChecksFromFirebase(tag) {
+  if (fbRef && fbListener) {
+    fbRef.off("value", fbListener);
+  }
+  checkedItems = {};
+  fbRef = db.ref(getFirebasePath(tag));
+  fbListener = fbRef.on("value", function(snapshot) {
+    var val = snapshot.val();
+    checkedItems = val || {};
+    updateUI();
+  });
+}
+
+function saveTickToFirebase(name, checked) {
+  if (!fbRef) return;
+  var key = sanitizeKey(name);
+  if (checked) {
+    fbRef.child(key).set(true);
+  } else {
+    fbRef.child(key).remove();
+  }
+  showSyncStatus();
+}
+
+function showSyncStatus() {
+  var el = document.getElementById("syncStatus");
+  el.classList.add("show");
+  setTimeout(function() { el.classList.remove("show"); }, 1200);
 }
 
 function toggleItem(el) {
   var name = el.getAttribute("data-name");
-  if (checkedItems[name]) {
-    delete checkedItems[name];
+  var key = sanitizeKey(name);
+  if (checkedItems[key]) {
+    delete checkedItems[key];
     document.getElementById("uncheckSound").play().catch(function(){});
+    saveTickToFirebase(name, false);
   } else {
-    checkedItems[name] = true;
+    checkedItems[key] = true;
     document.getElementById("checkSound").play().catch(function(){});
+    saveTickToFirebase(name, true);
   }
-  saveChecks(currentDateTag, checkedItems);
   updateUI();
 }
 
 function updateUI() {
   document.querySelectorAll(".order-item").forEach(function(el) {
     var name = el.getAttribute("data-name");
-    if (checkedItems[name]) {
+    var key = sanitizeKey(name);
+    if (checkedItems[key]) {
       el.classList.add("checked");
       el.querySelector(".checkbox").textContent = "✓";
     } else {
@@ -424,7 +543,7 @@ function updateProgress() {
   var fill = document.getElementById("progressFill");
   var text = document.getElementById("progressText");
   if (fill) fill.style.width = pct + "%";
-  if (text) text.textContent = done + " / " + total + " items done (" + pct + "%)";
+  if (text) text.textContent = done + " / " + total + " done · " + pct + "%";
 }
 
 // ═══════════════════════════════════════
@@ -443,12 +562,13 @@ function renderContent(orders) {
   var total = sorted.reduce(function(s,e){ return s+e[1]; }, 0);
   document.getElementById("totalCount").textContent = total;
 
-  var html = '<div class="section-title">🥬 Orders</div>';
+  var html = '<div class="section-title">Orders</div>';
   sorted.forEach(function(item) {
     var name = item[0];
     var qty = item[1];
-    var isChecked = checkedItems[name] ? " checked" : "";
-    var checkMark = checkedItems[name] ? "✓" : "";
+    var key = sanitizeKey(name);
+    var isChecked = checkedItems[key] ? " checked" : "";
+    var checkMark = checkedItems[key] ? "✓" : "";
     var safe = name.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;');
     html += '<div class="order-item'+isChecked+'" data-name="'+safe+'" onclick="toggleItem(this)">';
     html += '<div class="checkbox">'+checkMark+'</div>';
@@ -457,8 +577,8 @@ function renderContent(orders) {
     html += '</div>';
   });
 
-  html += '<div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>';
-  html += '<div class="progress-text" id="progressText">0 / '+sorted.length+' items done (0%)</div>';
+  html += '<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>';
+  html += '<div class="progress-text" id="progressText">0 / '+sorted.length+' done · 0%</div></div>';
 
   document.getElementById("content").innerHTML = html;
   updateProgress();
@@ -469,7 +589,7 @@ function renderContent(orders) {
 // ═══════════════════════════════════════
 async function loadData() {
   var btn = document.getElementById("refreshBtn");
-  btn.textContent = "Refreshing...";
+  btn.textContent = "LOADING...";
   btn.disabled = true;
 
   var disp = getDateDisplay();
@@ -477,14 +597,14 @@ async function loadData() {
 
   if (dateOffset === defaultOffset) {
     document.getElementById("todayBtn").style.display = "none";
-    document.getElementById("dateSub").textContent = disp.sub + (defaultOffset === 0 ? " · Today's orders" : " · Tomorrow's orders");
+    document.getElementById("dateSub").textContent = disp.sub + (defaultOffset === 0 ? " · Today" : " · Tomorrow");
   } else {
     document.getElementById("todayBtn").style.display = "block";
     document.getElementById("dateSub").textContent = disp.sub;
   }
 
   currentDateTag = disp.tag;
-  checkedItems = loadChecks(currentDateTag);
+  loadChecksFromFirebase(currentDateTag);
 
   try {
     var orders = await fetchSheetData(getSheetName());
@@ -497,23 +617,23 @@ async function loadData() {
     } else {
       var total = Object.values(orders).reduce(function(s,v){ return s+v; }, 0);
       renderContent(orders);
-      setStatus(true, "Live · "+total+" total pcs");
+      setStatus(true, "Live · " + total + " pcs");
     }
-    document.getElementById("timestamp").textContent = "Updated: " + new Date().toLocaleTimeString("en-MY",{hour:"2-digit",minute:"2-digit"});
+    document.getElementById("timestamp").textContent = "Updated " + new Date().toLocaleTimeString("en-MY",{hour:"2-digit",minute:"2-digit"});
 
   } catch(err) {
     if (err.message === "NO_SHEET") {
       setStatus(true, "No orders");
       document.getElementById("totalCount").textContent = "0";
       document.getElementById("content").innerHTML = '<div class="no-orders-msg">No orders for '+disp.main+'</div>';
-      document.getElementById("timestamp").textContent = "Updated: " + new Date().toLocaleTimeString("en-MY",{hour:"2-digit",minute:"2-digit"});
+      document.getElementById("timestamp").textContent = "Updated " + new Date().toLocaleTimeString("en-MY",{hour:"2-digit",minute:"2-digit"});
     } else {
       setStatus(false, "Connection error");
       document.getElementById("content").innerHTML = '<div class="error-msg">Could not load data. Check connection and try again.</div>';
     }
   }
 
-  btn.textContent = "Refresh";
+  btn.textContent = "REFRESH";
   btn.disabled = false;
 }
 
