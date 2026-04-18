@@ -85,6 +85,21 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text)
 .timestamp { text-align:center; font-size:11px; color:var(--text-muted); margin-top:12px; font-family:'JetBrains Mono',monospace; }
 .error-msg { background:#FFF0F0; border:1.5px solid #F0C0C0; border-radius:var(--radius); padding:20px; text-align:center; color:#C03030; font-size:14px; }
 .no-orders-msg { background:var(--card); border:1.5px solid var(--card-border); border-radius:var(--radius); padding:32px 20px; text-align:center; color:var(--text-dim); font-size:14px; }
+.cat-head { padding:10px 16px; font-size:12px; font-weight:700; display:flex; justify-content:space-between; align-items:center; border-top:1px solid; border-bottom:1px solid; cursor:pointer; user-select:none; letter-spacing:0.5px; }
+.s1 .cat-head { background:#F1F8E9; color:#1B5E20; border-color:rgba(129,199,132,0.4); }
+.s2 .cat-head { background:#FFF3E0; color:#BF360C; border-color:rgba(255,204,128,0.4); }
+.s3 .cat-head { background:#E1F5FE; color:#0D47A1; border-color:rgba(144,202,249,0.4); }
+.st .cat-head { background:#F8F4FC; color:#6A1B9A; border-color:#E1D4E8; }
+.s1 .cat-head:active { background:#DCEDC8; } .s2 .cat-head:active { background:#FFE0B2; }
+.s3 .cat-head:active { background:#BBDEFB; } .st .cat-head:active { background:#EDE0F5; }
+.cat-left { display:flex; align-items:center; gap:10px; }
+.cat-chev { width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:6px solid; transition:transform 0.2s; }
+.s1 .cat-chev { border-top-color:#388E3C; } .s2 .cat-chev { border-top-color:#EF6C00; }
+.s3 .cat-chev { border-top-color:#1565C0; } .st .cat-chev { border-top-color:#6A1B9A; }
+.cat-chev.closed { transform:rotate(-90deg); }
+.cat-count { font-family:'JetBrains Mono',monospace; font-weight:700; font-size:11px; }
+.cat-body { max-height:3000px; overflow:hidden; transition:max-height 0.25s ease; }
+.cat-body.closed { max-height:0; }
 </style>
 </head>
 <body>
@@ -135,33 +150,51 @@ const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function playTickSound() {
   const now=audioCtx.currentTime;
-  const o1=audioCtx.createOscillator(),o2=audioCtx.createOscillator(),g=audioCtx.createGain();
-  o1.type='sine';o2.type='sine';
-  o1.frequency.setValueAtTime(880,now);o1.frequency.setValueAtTime(1175,now+0.06);
-  o2.frequency.setValueAtTime(1175,now);o2.frequency.setValueAtTime(1480,now+0.06);
-  g.gain.setValueAtTime(0.15,now);g.gain.exponentialRampToValueAtTime(0.01,now+0.15);
-  o1.connect(g);o2.connect(g);g.connect(audioCtx.destination);
-  o1.start(now);o2.start(now);o1.stop(now+0.15);o2.stop(now+0.15);
+  [1568,2093,2637,3136].forEach((freq,i)=>{
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.type='sine';o.frequency.setValueAtTime(freq,now+i*0.04);
+    g.gain.setValueAtTime(0,now+i*0.04);
+    g.gain.linearRampToValueAtTime(0.12,now+i*0.04+0.01);
+    g.gain.exponentialRampToValueAtTime(0.001,now+i*0.04+0.25);
+    o.connect(g);g.connect(audioCtx.destination);
+    o.start(now+i*0.04);o.stop(now+i*0.04+0.26);
+  });
 }
 
 function playUntickSound() {
   const now=audioCtx.currentTime;
-  const o1=audioCtx.createOscillator(),o2=audioCtx.createOscillator(),g=audioCtx.createGain();
-  o1.type='sawtooth';o2.type='sine';
-  o1.frequency.setValueAtTime(400,now);o1.frequency.exponentialRampToValueAtTime(150,now+0.35);
-  o2.frequency.setValueAtTime(380,now);o2.frequency.exponentialRampToValueAtTime(140,now+0.35);
-  g.gain.setValueAtTime(0.08,now);g.gain.setValueAtTime(0.1,now+0.05);g.gain.exponentialRampToValueAtTime(0.01,now+0.4);
-  o1.connect(g);o2.connect(g);g.connect(audioCtx.destination);
-  o1.start(now);o2.start(now);o1.stop(now+0.4);o2.stop(now+0.4);
+  const o1=audioCtx.createOscillator(),g1=audioCtx.createGain();
+  o1.type='triangle';
+  o1.frequency.setValueAtTime(440,now);
+  o1.frequency.exponentialRampToValueAtTime(330,now+0.12);
+  g1.gain.setValueAtTime(0.14,now);
+  g1.gain.exponentialRampToValueAtTime(0.001,now+0.15);
+  o1.connect(g1);g1.connect(audioCtx.destination);
+  o1.start(now);o1.stop(now+0.16);
+  const o2=audioCtx.createOscillator(),g2=audioCtx.createGain();
+  o2.type='triangle';
+  o2.frequency.setValueAtTime(330,now+0.14);
+  o2.frequency.exponentialRampToValueAtTime(247,now+0.32);
+  g2.gain.setValueAtTime(0.14,now+0.14);
+  g2.gain.exponentialRampToValueAtTime(0.001,now+0.35);
+  o2.connect(g2);g2.connect(audioCtx.destination);
+  o2.start(now+0.14);o2.stop(now+0.36);
 }
 
 function playJackpotSound() {
   const now=audioCtx.currentTime;
-  [523,659,784,1047,1319,1568].forEach((freq,i)=>{
-    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
-    o.type='sine';o.frequency.setValueAtTime(freq,now+i*0.08);
-    g.gain.setValueAtTime(0.15,now+i*0.08);g.gain.exponentialRampToValueAtTime(0.01,now+i*0.08+0.3);
-    o.connect(g);g.connect(audioCtx.destination);o.start(now+i*0.08);o.stop(now+i*0.08+0.3);
+  const chord1=[523,659,784],chord2=[587,740,880],chord3=[698,880,1047],chord4=[784,988,1175,1568];
+  [chord1,chord2,chord3,chord4].forEach((chord,ci)=>{
+    const t=now+ci*0.12;
+    chord.forEach(freq=>{
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.type='triangle';o.frequency.setValueAtTime(freq,t);
+      g.gain.setValueAtTime(0,t);
+      g.gain.linearRampToValueAtTime(0.1,t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.001,t+(ci===3?0.8:0.25));
+      o.connect(g);g.connect(audioCtx.destination);
+      o.start(t);o.stop(t+(ci===3?0.82:0.27));
+    });
   });
 }
 
@@ -175,6 +208,44 @@ function desanitizeKey(key) {
 
 function firebasePath(dateTag) {
   return "kitchen-ticks/" + dateTag.replace(/\s/g, "_");
+}
+
+const CAT_ORDER = ["ICS","BOX SET","ICC","SAKURA SET","CAKE BITE","TART","MC","4.5 INCH","6 INCH","7 INCH","8 INCH","9 INCH","ADD-ONS","OTHER"];
+const CAT_COLLAPSED_DEFAULT = {"4.5 INCH":true,"7 INCH":true,"8 INCH":true,"9 INCH":true,"CAKE BITE":true,"ADD-ONS":true,"OTHER":true};
+
+function getCategory(sku) {
+  const s = sku.toUpperCase().trim();
+  if (s === "4PRM" || s === "4WBALL" || s === "CTBAG" || s === "CIGAR") return "ADD-ONS";
+  if (s.startsWith("ICS")) return "ICS";
+  if (s.startsWith("BOX SET")) return "BOX SET";
+  if (s.startsWith("ICC")) return "ICC";
+  if (s.includes("PIE")) return "ICC";
+  if (s.includes("SAKURA")) return "SAKURA SET";
+  if (s.startsWith("CAKE BITE")) return "CAKE BITE";
+  if (s.includes("TART")) return "TART";
+  if (/\s1KG$/.test(s) || /\s1KG\s/.test(s)) return "MC";
+  if (s.includes("4.5")) return "4.5 INCH";
+  if (s.includes("ROKU MATCHA")) return "6 INCH";
+  if (/\s6$/.test(s) || /\s6\s/.test(s)) return "6 INCH";
+  if (/\s7$/.test(s) || /\s7\s/.test(s)) return "7 INCH";
+  if (/\s8$/.test(s) || /\s8\s/.test(s)) return "8 INCH";
+  if (/\s9$/.test(s) || /\s9\s/.test(s)) return "9 INCH";
+  return "OTHER";
+}
+
+function groupByCategory(entries) {
+  const groups = {};
+  entries.forEach(([k,v]) => {
+    const cat = getCategory(k);
+    if (!groups[cat]) groups[cat] = [];
+    groups[cat].push([k,v]);
+  });
+  return CAT_ORDER.filter(c => groups[c]).map(c => [c, groups[c]]);
+}
+
+function toggleCat(el) {
+  el.querySelector('.cat-chev').classList.toggle('closed');
+  el.nextElementSibling.classList.toggle('closed');
 }
 
 function listenToFirebase(dateTag) {
@@ -249,6 +320,19 @@ function updateCheckUI() {
     if(checkedItems[row.getAttribute('data-key')])row.classList.add('checked');
     else row.classList.remove('checked');
   });
+  document.querySelectorAll('.cat-count[data-cat]').forEach(el=>{
+    const [panel,cat]=el.getAttribute('data-cat').split('::');
+    const rows=document.querySelectorAll('#'+panel+' .sku-row[data-key]');
+    let done=0,tot=0,pcs=0;
+    rows.forEach(r=>{
+      const k=r.getAttribute('data-key').split('|')[1];
+      if(getCategory(k)!==cat)return;
+      tot++;
+      pcs+=parseInt(r.getAttribute('data-qty'))||0;
+      if(r.classList.contains('checked'))done++;
+    });
+    el.textContent=done+'/'+tot+' \u00B7 '+pcs+' pcs';
+  });
   updateProgress();
 }
 
@@ -302,6 +386,25 @@ function progBarHtml(id,fillColor,borderColor){
     +'<div class="progress-track"><div class="progress-fill" style="width:0%;background:'+fillColor+';"></div></div></div>';
 }
 
+function categoryBlockHtml(panel,entries,prefix){
+  const groups = groupByCategory(entries);
+  let h = '';
+  groups.forEach(([cat,items])=>{
+    const catTotal = items.reduce((s,e)=>s+e[1],0);
+    const catKeys = items.map(([k,v])=>panel+"|"+k);
+    const catDone = catKeys.filter(k=>checkedItems[k]).length;
+    const isClosed = CAT_COLLAPSED_DEFAULT[cat] ? ' closed' : '';
+    h += '<div class="cat-head" onclick="toggleCat(this)">';
+    h += '<div class="cat-left"><div class="cat-chev'+isClosed+'"></div><span>'+cat+'</span></div>';
+    h += '<span class="cat-count" data-cat="'+panel+'::'+cat+'">'+catDone+'/'+items.length+' \u00B7 '+catTotal+' pcs</span>';
+    h += '</div>';
+    h += '<div class="cat-body'+isClosed+'">';
+    items.forEach(([k,v])=>{h += skuRowHtml(panel,k,v,prefix);});
+    h += '</div>';
+  });
+  return h;
+}
+
 function renderContent(s1,s2,s3){
   const s1T=s1.reduce((s,e)=>s+e[1],0),s2T=s2.reduce((s,e)=>s+e[1],0),s3T=s3.reduce((s,e)=>s+e[1],0);
   const cMap={};
@@ -319,22 +422,22 @@ function renderContent(s1,s2,s3){
   h+='<div id="snap1" class="panel"><div class="section s1">';
   h+='<div class="section-head">Confirmed by 4:30pm <span class="section-badge">'+s1T+' pcs</span></div>';
   if(s1.length===0)h+='<div class="empty-state">No orders confirmed yet</div>';
-  else{h+=progBarHtml('snap1','#2E7D32','rgba(129,199,132,0.4)');h+='<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'snap1\')">Select all / Unselect all</button>';s1.forEach(([k,v])=>{h+=skuRowHtml('snap1',k,v,'');});}
+  else{h+=progBarHtml('snap1','#2E7D32','rgba(129,199,132,0.4)');h+='<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'snap1\')">Select all / Unselect all</button>';h+=categoryBlockHtml('snap1',s1.sort((a,b)=>a[0].localeCompare(b[0])),'');}
   h+='</div></div>';
   h+='<div id="snap2" class="panel"><div class="section s2">';
   h+='<div class="section-head">Overnight (4:30pm-8am) <span class="section-badge">+'+s2T+' pcs</span></div>';
   if(s2.length===0)h+='<div class="empty-state">No overnight additions</div>';
-  else{h+=progBarHtml('snap2','#EF6C00','rgba(255,204,128,0.4)');h+='<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'snap2\')">Select all / Unselect all</button>';s2.forEach(([k,v])=>{h+=skuRowHtml('snap2',k,v,'+');});}
+  else{h+=progBarHtml('snap2','#EF6C00','rgba(255,204,128,0.4)');h+='<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'snap2\')">Select all / Unselect all</button>';h+=categoryBlockHtml('snap2',s2.sort((a,b)=>a[0].localeCompare(b[0])),'+');}
   h+='</div></div>';
   h+='<div id="snap3" class="panel"><div class="section s3">';
   h+='<div class="section-head">Same day (after 8am) <span class="section-badge">+'+s3T+' pcs</span></div>';
   if(s3.length===0)h+='<div class="empty-state">No same-day orders yet</div>';
-  else{h+=progBarHtml('snap3','#1565C0','rgba(144,202,249,0.4)');h+='<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'snap3\')">Select all / Unselect all</button>';s3.forEach(([k,v])=>{h+=skuRowHtml('snap3',k,v,'+');});}
+  else{h+=progBarHtml('snap3','#1565C0','rgba(144,202,249,0.4)');h+='<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'snap3\')">Select all / Unselect all</button>';h+=categoryBlockHtml('snap3',s3.sort((a,b)=>a[0].localeCompare(b[0])),'+');}
   h+='</div></div>';
   h+='<div id="total" class="panel active"><div class="section st">';
   h+='<div class="section-head">Total to prep <span class="section-badge">'+gT+' pcs</span></div>';
   if(cE.length===0)h+='<div class="empty-state">No orders yet</div>';
-  else{h+='<div id="total-summary" style="padding:10px 16px;background:#EDE7F6;font-size:13px;font-weight:600;color:#6A1B9A;text-align:center;border-bottom:1px solid rgba(206,147,216,0.35);">0/0 pcs prepped</div>';h+='<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'total\')">Select all / Unselect all</button>';cE.forEach(([k,v])=>{h+=skuRowHtml('total',k,v,'');});}
+  else{h+='<div id="total-summary" style="padding:10px 16px;background:#EDE7F6;font-size:13px;font-weight:600;color:#6A1B9A;text-align:center;border-bottom:1px solid rgba(206,147,216,0.35);">0/0 pcs prepped</div>';h+='<button class="select-all-btn" onclick="event.stopPropagation();selectAll(\'total\')">Select all / Unselect all</button>';h+=categoryBlockHtml('total',cE,'');}
   h+='</div></div>';
   document.getElementById("content").innerHTML=h;
   updateCheckUI();
